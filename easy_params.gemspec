@@ -26,4 +26,17 @@ Gem::Specification.new do |spec|
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
+
+  spec.required_ruby_version = '>= 2.2.2'
+
+  version_string = ['>= 3.2', '< 6.1']
+
+  spec.add_runtime_dependency 'activemodel', version_string
+
+  # spec.add_dependency 'dry-logic', '~> 0.4.2'
+  spec.add_dependency 'dry-struct', '~> 1.0'
+  spec.add_dependency 'dry-types', '~> 1.2'
+
+  spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'rspec_vars_helper', '~> 0.1'
 end
