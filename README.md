@@ -1,9 +1,5 @@
 # EasyParams
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/easy_params`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -22,7 +18,50 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+# app/params/api/v2/icqa/move_params.rb
+class Api::V1::Carts::MoveParams < EasyParams::Base
+  attribute :receive_cart_id, integer
+  attribute :i_am_sure, bool
+  attribute :location_code, string.default('')
+  attribute :sections, struct do
+    attribute :from, string
+    attribute :to, string
+  end
+  attribute :options, array.of(struct) do
+    attribute :option_type_count, integer
+    attribute :option_type_value, integer
+
+    validates :option_type_count, :option_type_value, presence: { message: "can't be blank" }
+  end
+
+  validates :receive_cart_id, :location_code, presence: { message: "can't be blank" }
+end
+```
+Validation messages for nested attributes will look like this.
+```ruby
+{
+  :"sections/0/id"=>an_instance_of(Array),
+  :"sections/0/post/id"=>an_instance_of(Array),
+  :"post/id"=>an_instance_of(Array),
+  :"post/sections/0/id"=>an_instance_of(Array)
+ }
+```
+Optionally you can use more compact form 
+```ruby
+class MyParams < EasyParams::Base
+  extend EasyParams::DSL
+
+  quantity integer.default(1)
+  posts each do
+    content string.default('')
+  end
+  user has do
+    role string
+  end
+end
+```
+More examples here [params_spec.rb](https://github.com/andriy-baran/easy_params/blob/master/spec/easy_params_spec.rb)
 
 ## Development
 
