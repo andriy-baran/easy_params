@@ -9,11 +9,7 @@ module EasyParams
     end
 
     def method_missing(method_name, *args, &block)
-      if respond_to?(method_name)
-        super
-      else
-        public_send(:attribute, method_name, *args, &block)
-      end
+      public_send(:attribute, method_name, *args, &block)
     end
   end
 end
