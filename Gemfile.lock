@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    easy_params (0.1.0)
+    easy_params (0.2.0)
       activemodel (>= 3.2, < 6.1)
       dry-struct (~> 1.4)
       dry-types (~> 1.5)
