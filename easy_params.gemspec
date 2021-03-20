@@ -34,8 +34,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'activemodel', version_string
 
   # spec.add_dependency 'dry-logic', '~> 0.4.2'
-  spec.add_dependency 'dry-struct', '~> 1.0'
-  spec.add_dependency 'dry-types', '~> 1.2'
+  spec.add_dependency 'dry-struct', '~> 1.4'
+  spec.add_dependency 'dry-types', '~> 1.5'
 
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rspec_vars_helper', '~> 0.1'
