@@ -1,6 +1,10 @@
 require "bundler/setup"
-require "easy_params"
 require 'rspec_vars_helper'
+require 'simplecov'
+SimpleCov.start do
+  add_filter '/spec/'
+end
+require "easy_params"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
