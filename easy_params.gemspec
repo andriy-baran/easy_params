@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.4'
 
-  version_string = ['>= 3.2', '< 6.1']
+  version_string = ['>= 3.2', '< 8']
 
   spec.add_runtime_dependency 'activemodel', version_string
 
