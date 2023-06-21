@@ -16,6 +16,7 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
+    coderay (1.1.3)
     concurrent-ruby (1.1.9)
     diff-lcs (1.4.4)
     docile (1.3.5)
@@ -44,7 +45,11 @@ GEM
     i18n (1.9.1)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
+    method_source (1.0.0)
     minitest (5.15.0)
+    pry (0.14.2)
+      coderay (~> 1.1)
+      method_source (~> 1.0)
     rake (12.3.3)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -75,6 +80,7 @@ PLATFORMS
 
 DEPENDENCIES
   easy_params!
+  pry
   rake (~> 12.0)
   rspec (~> 3.0)
   rspec_vars_helper (~> 0.1)

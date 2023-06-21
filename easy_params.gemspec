@@ -34,8 +34,4 @@ Gem::Specification.new do |spec|
   # spec.add_dependency 'dry-logic', '~> 0.4.2'
   spec.add_dependency 'dry-struct', '~> 1.4'
   spec.add_dependency 'dry-types', '~> 1.5'
-
-  spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'rspec_vars_helper', '~> 0.1'
-  spec.add_development_dependency 'simplecov', '~> 0.17'
 end
