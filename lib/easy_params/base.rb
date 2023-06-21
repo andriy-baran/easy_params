@@ -27,8 +27,14 @@ module EasyParams
           if value.invalid?
             error_key_components = [error_key_prefix, attr_name, array_index]
             attr_error_key_prefix = error_key_components.compact.join('/')
-            value.errors.each do |error_key, error_message|
-              errors.add("#{attr_error_key_prefix}/#{error_key}", error_message)
+            if defined? ActiveModel::Error
+              value.errors.each do |error|
+                errors.add("#{attr_error_key_prefix}/#{error.attribute}", error.options[:message]) if error.options[:message]
+              end
+            else
+              value.errors.each do |error_key, error_message|
+                errors.add("#{attr_error_key_prefix}/#{error_key}", error_message)
+              end
             end
           end
           value.attributes.each do |nested_attr_name, nested_value|

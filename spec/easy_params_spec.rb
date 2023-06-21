@@ -11,14 +11,14 @@ RSpec.describe EasyParams do
           attribute :post, struct do
             attribute :id, integer
             attribute :author, string.default('')
-            validates :id, presence: { message: "can't be blank" }
+            validates :id, presence: { message: "can't be blank1" }
           end
-          validates :id, presence: { message: "can't be blank" }
+          validates :id, presence: { message: "can't be blank2" }
         end
         attribute :post, struct do
           attribute :id, integer
           attribute :author, string.default('')
-          validates :id, presence: { message: "can't be blank" }
+          validates :id, presence: { message: "can't be blank3" }
           attribute :sections, array.of(struct) do
             attribute :id, integer
             attribute :content, string.default('')
@@ -26,11 +26,11 @@ RSpec.describe EasyParams do
             attribute :meta, struct do
               attribute :copies, array.of(string)
             end
-            validates :id, presence: { message: "can't be blank" }
+            validates :id, presence: { message: "can't be blank4" }
           end
         end
 
-        validates :id, :quantity, presence: { message: "can't be blank" }
+        validates :id, :quantity, presence: { message: "can't be blank5" }
         validates :quantity, numericality: { only_integer: true, greater_than: 0 }
       end
     end
@@ -150,7 +150,7 @@ RSpec.describe EasyParams do
 
     context 'when validation does not pass' do
       vars do
-        messages { ['Id can\'t be blank'] }
+        messages { ['Id can\'t be blank5'] }
       end
 
       it 'invalid? returns true' do

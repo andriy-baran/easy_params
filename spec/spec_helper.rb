@@ -1,6 +1,7 @@
 require "bundler/setup"
 require 'rspec_vars_helper'
 require 'simplecov'
+require 'pry'
 SimpleCov.start do
   add_filter '/spec/'
 end
