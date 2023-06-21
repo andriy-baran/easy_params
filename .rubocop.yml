@@ -4,6 +4,7 @@ AllCops:
   Exclude:
     - ./spec/spec_helper.rb
     - ./spec/**/*.rb
+    - vendor/bundle/**/*
 
 Layout/LineLength:
   Max: 120
