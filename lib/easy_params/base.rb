@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module EasyParams
+  # Implements validations logic and nesting structures
   class Base < Dry::Struct
     include ActiveModel::Validations
 
@@ -17,34 +20,43 @@ module EasyParams
     end
 
     def validate_nested
-      run_nested_validations = proc do |attr_name, value, array_index, error_key_prefix|
+      attributes.each(&run_nested_validations)
+    end
+
+    def run_nested_validations
+      proc do |attr_name, value, array_index, error_key_prefix|
         case value
         when Array
           value.each.with_index do |element, i|
             run_nested_validations[attr_name, element, i, error_key_prefix]
           end
         when self.class.struct
-          if value.invalid?
-            error_key_components = [error_key_prefix, attr_name, array_index]
-            attr_error_key_prefix = error_key_components.compact.join('/')
-            if defined? ActiveModel::Error
-              value.errors.each do |error|
-                errors.add("#{attr_error_key_prefix}/#{error.attribute}", error.options[:message]) if error.options[:message]
-              end
-            else
-              value.errors.each do |error_key, error_message|
-                errors.add("#{attr_error_key_prefix}/#{error_key}", error_message)
-              end
-            end
-          end
-          value.attributes.each do |nested_attr_name, nested_value|
-            run_nested_validations[nested_attr_name, nested_value, nil, attr_error_key_prefix]
-          end
-        else
-          # NOOP
+          handle_struct_validation(value, error_key_prefix, attr_name, array_index)
         end
       end
-      attributes.each(&run_nested_validations)
+    end
+
+    def handle_struct_validation(value, error_key_prefix, attr_name, array_index)
+      if value.invalid?
+        error_key_components = [error_key_prefix, attr_name, array_index]
+        attr_error_key_prefix = error_key_components.compact.join('/')
+        add_errors_on_top_level(value, attr_error_key_prefix)
+      end
+      value.attributes.each do |nested_attr_name, nested_value|
+        run_nested_validations[nested_attr_name, nested_value, nil, attr_error_key_prefix]
+      end
+    end
+
+    def add_errors_on_top_level(value, attr_error_key_prefix)
+      if defined? ActiveModel::Error
+        value.errors.each do |error|
+          next unless error.options[:message]
+
+          errors.add("#{attr_error_key_prefix}/#{error.attribute}", error.options[:message])
+        end
+      else
+        value.errors.each { |key, message| errors.add("#{attr_error_key_prefix}/#{key}", message) }
+      end
     end
   end
 end

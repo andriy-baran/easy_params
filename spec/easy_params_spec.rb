@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe EasyParams do
   vars do
     params_class do

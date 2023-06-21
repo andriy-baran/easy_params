@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EasyParams
   module Types
     Struct    = EasyParams::Base.meta(omittable: true)
