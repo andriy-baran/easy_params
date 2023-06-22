@@ -47,14 +47,16 @@ module EasyParams
       end
     end
 
-    def add_errors_on_top_level(value, attr_error_key_prefix)
-      if defined? ActiveModel::Error
+    if defined? ActiveModel::Error
+      def add_errors_on_top_level(value, attr_error_key_prefix)
         value.errors.each do |error|
           next unless error.options[:message]
 
           errors.add("#{attr_error_key_prefix}/#{error.attribute}", error.options[:message])
         end
-      else
+      end
+    else
+      def add_errors_on_top_level(value, attr_error_key_prefix)
         value.errors.each { |key, message| errors.add("#{attr_error_key_prefix}/#{key}", message) }
       end
     end
