@@ -1,5 +1,15 @@
 # EasyParams
 
+[![Gem Version](https://badge.fury.io/rb/nina.svg)](https://badge.fury.io/rb/nina)
+[![Maintainability](https://api.codeclimate.com/v1/badges/17872804ce576b8b0df2/maintainability)](https://codeclimate.com/github/andriy-baran/easy_params/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/17872804ce576b8b0df2/test_coverage)](https://codeclimate.com/github/andriy-baran/easy_params/test_coverage)
+
+Provides an easy way define structure, validation rules, type coercion and set default values for any hash-like structure. It's built on top of `dry-types`, `dry-structure` and `active_model/validations`.
+
+## Types
+
+Dry types are wrapped by class methods. Avaliable types: `integer`, `decimal`, `float`, `bool`, `string`, `array`, `date`, `datetime`, `time`, `struct`
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -47,7 +57,7 @@ Validation messages for nested attributes will look like this.
   :"post/sections/0/id"=>an_instance_of(Array)
  }
 ```
-Optionally you can use more compact form 
+Optionally you can use more compact form
 ```ruby
 class MyParams < EasyParams::Base
   extend EasyParams::DSL
@@ -61,6 +71,8 @@ class MyParams < EasyParams::Base
   end
 end
 ```
+This hovewer has some limitations: for attributes have name like `integer`, `decimal`, `float`, `bool`, `string`, `array`, `date`, `datetime`, `time`, `struct` it won't work as expected.
+
 More examples here [params_spec.rb](https://github.com/andriy-baran/easy_params/blob/master/spec/easy_params_spec.rb)
 
 ## Development
