@@ -19,6 +19,8 @@ module EasyParams
       validate_nested
     end
 
+    private
+
     def validate_nested
       attributes.each(&run_nested_validations)
     end
