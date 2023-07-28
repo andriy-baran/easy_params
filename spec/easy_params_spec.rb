@@ -141,12 +141,41 @@ RSpec.describe EasyParams do
 
       it 'returns hash with correct values' do
         params_obj.valid?
-        expect(OpenStruct.new(params_obj.errors.messages)).to have_attributes(
-                                                                "sections/0/id": an_instance_of(Array),
-                                                                "sections/0/post/id": an_instance_of(Array),
-                                                                "post/id": an_instance_of(Array),
-                                                                "post/sections/0/id": an_instance_of(Array)
-                                                              )
+        expect(OpenStruct.new(params_obj.errors.messages)).
+          to have_attributes(
+                              "sections[0].id": ["can't be blank2"],
+                              "sections[0].post.id": ["can't be blank1"],
+                              "post.id": ["can't be blank3"],
+                              "post.sections[0].id": ["can't be blank4"]
+                            )
+      end
+
+      context 'rails applicantion nested attributes' do
+        vars do
+          params_class do
+            Class.new(EasyParams::Base) do
+              attribute :title, string
+              attribute :place_attributes, struct do
+                attribute :city, string
+                attribute :address, string
+
+                validates :city, :address, presence: true
+              end
+
+              validates :title, :place_attributes, presence: true
+            end
+          end
+          attributes { { title: '', place_attributes: { city: '', address: '' } } }
+        end
+
+        it 'has proper messages' do
+          params_obj.valid?
+          expect(OpenStruct.new(params_obj.errors.messages)).to have_attributes(
+            "place_attributes.city": ["can't be blank"],
+            "place_attributes.address": ["can't be blank"],
+            "title": ["can't be blank"]
+          )
+        end
       end
     end
 

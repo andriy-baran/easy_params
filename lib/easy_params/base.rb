@@ -22,44 +22,45 @@ module EasyParams
     private
 
     def validate_nested
-      attributes.each(&run_nested_validations)
+      attributes.each do |_, value|
+        case value
+        when self.class.array.of(self.class.struct)
+          value.each(&:valid?)
+        when self.class.struct
+          value.valid?
+        end
+      end
+      attributes.each(&aggregate_nested_errors)
     end
 
-    def run_nested_validations
+    def aggregate_nested_errors
       proc do |attr_name, value, array_index, error_key_prefix|
         case value
-        when Array
+        when self.class.array.of(self.class.struct)
           value.each.with_index do |element, i|
-            run_nested_validations[attr_name, element, i, error_key_prefix]
+            aggregate_nested_errors[attr_name, element, "[#{i}]", error_key_prefix]
           end
         when self.class.struct
-          handle_struct_validation(value, error_key_prefix, attr_name, array_index)
+          handle_nested_errors(value, error_key_prefix, attr_name, array_index)
         end
       end
     end
 
-    def handle_struct_validation(value, error_key_prefix, attr_name, array_index)
-      if value.invalid?
-        error_key_components = [error_key_prefix, attr_name, array_index]
-        attr_error_key_prefix = error_key_components.compact.join('/')
-        add_errors_on_top_level(value, attr_error_key_prefix)
-      end
-      value.attributes.each do |nested_attr_name, nested_value|
-        run_nested_validations[nested_attr_name, nested_value, nil, attr_error_key_prefix]
-      end
+    def handle_nested_errors(value, error_key_prefix, attr_name, array_index)
+      return if value.errors.blank?
+
+      error_key_components = [error_key_prefix, attr_name, array_index]
+      attr_error_key_prefix = error_key_components.compact.join('.').gsub(/\.\[(\d+)\]/, '[\1]')
+      add_errors_on_top_level(value, attr_error_key_prefix)
     end
 
     if defined? ActiveModel::Error
       def add_errors_on_top_level(value, attr_error_key_prefix)
-        value.errors.each do |error|
-          next unless error.options[:message]
-
-          errors.add("#{attr_error_key_prefix}/#{error.attribute}", error.options[:message])
-        end
+        value.errors.each { |error| errors.add("#{attr_error_key_prefix}.#{error.attribute}", error.message) }
       end
     else
       def add_errors_on_top_level(value, attr_error_key_prefix)
-        value.errors.each { |key, message| errors.add("#{attr_error_key_prefix}/#{key}", message) }
+        value.errors.each { |key, message| errors.add("#{attr_error_key_prefix}.#{key}", message) }
       end
     end
   end
