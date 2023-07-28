@@ -154,18 +154,20 @@ RSpec.describe EasyParams do
         vars do
           params_class do
             Class.new(EasyParams::Base) do
-              attribute :title, string
-              attribute :place_attributes, struct do
-                attribute :city, string
-                attribute :address, string
+              extend EasyParams::DSL
+              title string
+              worker_ids array.of(integer)
+              place_attributes has do
+                city string
+                address string
 
                 validates :city, :address, presence: true
               end
 
-              validates :title, :place_attributes, presence: true
+              validates :title, presence: true
             end
           end
-          attributes { { title: '', place_attributes: { city: '', address: '' } } }
+          attributes { { title: '', worker_ids: [1, 2], place_attributes: { city: '', address: '' } } }
         end
 
         it 'has proper messages' do

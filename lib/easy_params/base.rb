@@ -24,9 +24,9 @@ module EasyParams
     def validate_nested
       attributes.each do |_, value|
         case value
-        when self.class.array.of(self.class.struct)
+        when *EasyParams::Types::ARRAY_OF_STRUCTS_TYPES_LIST
           value.each(&:valid?)
-        when self.class.struct
+        when *EasyParams::Types::STRUCT_TYPES_LIST
           value.valid?
         end
       end
@@ -36,11 +36,11 @@ module EasyParams
     def aggregate_nested_errors
       proc do |attr_name, value, array_index, error_key_prefix|
         case value
-        when self.class.array.of(self.class.struct)
+        when *EasyParams::Types::ARRAY_OF_STRUCTS_TYPES_LIST
           value.each.with_index do |element, i|
             aggregate_nested_errors[attr_name, element, "[#{i}]", error_key_prefix]
           end
-        when self.class.struct
+        when *EasyParams::Types::STRUCT_TYPES_LIST
           handle_nested_errors(value, error_key_prefix, attr_name, array_index)
         end
       end
