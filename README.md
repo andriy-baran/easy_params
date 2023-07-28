@@ -51,10 +51,10 @@ end
 Validation messages for nested attributes will look like this.
 ```ruby
 {
-  :"sections/0/id"=>an_instance_of(Array),
-  :"sections/0/post/id"=>an_instance_of(Array),
-  :"post/id"=>an_instance_of(Array),
-  :"post/sections/0/id"=>an_instance_of(Array)
+  :"sections[0].id"=>an_instance_of(Array),
+  :"sections[0].post.id"=>an_instance_of(Array),
+  :"post.id"=>an_instance_of(Array),
+  :"post.sections[0].id"=>an_instance_of(Array)
  }
 ```
 Optionally you can use more compact form
