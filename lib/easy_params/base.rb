@@ -11,12 +11,38 @@ module EasyParams
       'EasyParams::Base'
     end
 
-    %w[Integer Decimal Float Bool String Array Date DateTime Time Struct StructDSL].each do |type|
-      send(:define_singleton_method, type.underscore) { EasyParams::Types.const_get(type) }
-    end
-
     validate do
       validate_nested
+    end
+
+    # %w[Integer Decimal Float Bool String Date DateTime Time Array Struct StructDSL].each do |type|
+    %w[Integer Decimal Float Bool String Date DateTime Time].each do |type_name|
+      send(:define_singleton_method, type_name.underscore) do |param_name, default: nil|
+        type = EasyParams::Types.const_get(type_name)
+        type = type.default(default) if default
+        public_send(:attribute, param_name, type)
+      end
+    end
+
+    def self.each(param_name, &block)
+      public_send(:attribute, param_name, EasyParams::Types::Each, &block)
+    end
+
+    def self.has(param_name, &block)
+      public_send(:attribute, param_name, EasyParams::Types::Struct, &block)
+    end
+
+    def self.array(param_name, of:, &block)
+      of_type = EasyParams::Types.const_get(of.to_s.camelcase)
+      public_send(:attribute, param_name, EasyParams::Types::Array.of(of_type), &block)
+    end
+
+    def self.param(method_name, type_name, of: nil, default: nil, &block)
+      type = EasyParams::Types.const_get(type_name.to_s.camelcase)
+      type = type.default(default) if default
+      type = type.of(EasyParams::Types.const_get(of.to_s.camelcase)) if of && type_name != :each
+
+      public_send(:attribute, method_name, type, &block)
     end
 
     private

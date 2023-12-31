@@ -4,29 +4,29 @@ RSpec.describe EasyParams do
   vars do
     params_class do
       Class.new(EasyParams::Base) do
-        attribute :id, integer
-        attribute :quantity, integer.default(1)
-        attribute :sections, array.of(struct) do
-          attribute :id, integer
-          attribute :content, string.default('')
-          attribute :updated_at, date
-          attribute :post, struct do
-            attribute :id, integer
-            attribute :author, string.default('')
+        integer :id
+        integer :quantity, default: 1
+        each :sections do
+          integer :id
+          string :content, default: ''
+          date :updated_at
+          has :post do
+            integer :id
+            param :author, :string, default: ''
             validates :id, presence: { message: "can't be blank1" }
           end
           validates :id, presence: { message: "can't be blank2" }
         end
-        attribute :post, struct do
-          attribute :id, integer
-          attribute :author, string.default('')
+        has :post do
+          param :id, :integer
+          param :author, :string, default: ''
           validates :id, presence: { message: "can't be blank3" }
-          attribute :sections, array.of(struct) do
-            attribute :id, integer
-            attribute :content, string.default('')
-            attribute :updated_at, date
-            attribute :meta, struct do
-              attribute :copies, array.of(string)
+          param :sections, :each do
+            param :id, :integer
+            param :content, :string, default: ''
+            param :updated_at, :date
+            has :meta do
+              array :copies, of: :string
             end
             validates :id, presence: { message: "can't be blank4" }
           end
@@ -154,12 +154,11 @@ RSpec.describe EasyParams do
         vars do
           params_class do
             Class.new(EasyParams::Base) do
-              extend EasyParams::DSL
-              title string
-              worker_ids array.of(integer)
-              place_attributes has do
-                city string
-                address string
+              param :title, :string
+              param :worker_ids, :array, of: :integer
+              has :place_attributes do
+                param :city, :string
+                param :address, :string
 
                 validates :city, :address, presence: true
               end
@@ -196,35 +195,4 @@ RSpec.describe EasyParams do
       end
     end
   end
-
-  context 'dsl' do
-    vars do
-      params_class do
-        Class.new(EasyParams::Base) do
-          extend EasyParams::DSL
-
-          quantity integer.default(1)
-          posts each do
-            content string.default('')
-          end
-          user has do
-            role string
-          end
-        end
-      end
-      attributes do
-        { quantity: 3, posts: [{ content: '' }, { content: 'story' }], user: { role: 'man' } }
-      end
-      params_obj { params_class.new(attributes) }
-    end
-
-    it 'returns hash with correct values' do
-      expect(params_obj.to_hash).to eq(
-                                      posts: [{ content: '' }, { content: 'story' }],
-                                      quantity: 3,
-                                      user: { role: 'man' }
-                                    )
-    end
-  end
-
 end
