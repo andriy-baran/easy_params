@@ -17,31 +17,42 @@ module EasyParams
 
     # %w[Integer Decimal Float Bool String Date DateTime Time Array Struct StructDSL].each do |type|
     %w[Integer Decimal Float Bool String Date DateTime Time].each do |type_name|
-      send(:define_singleton_method, type_name.underscore) do |param_name, default: nil|
+      send(:define_singleton_method, type_name.underscore) do |param_name, default: nil, normalize: nil, **validations|
         type = EasyParams::Types.const_get(type_name)
         type = type.default(default) if default
+        type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
+        validates param_name, **validations if validations.any?
         public_send(:attribute, param_name, type)
       end
     end
 
-    def self.each(param_name, &block)
-      public_send(:attribute, param_name, EasyParams::Types::Each, &block)
+    def self.each(param_name, normalize: nil, **validations, &block)
+      validates param_name, **validations if validations.any?
+      type = EasyParams::Types::Each
+      type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
+      public_send(:attribute, param_name, type, &block)
     end
 
-    def self.has(param_name, &block)
-      public_send(:attribute, param_name, EasyParams::Types::Struct, &block)
+    def self.has(param_name, normalize: nil, **validations, &block)
+      validates param_name, **validations if validations.any?
+      type = EasyParams::Types::Struct
+      type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
+      public_send(:attribute, param_name, type, &block)
     end
 
-    def self.array(param_name, of:, &block)
+    def self.array(param_name, of:, normalize: nil, **validations, &block)
+      validates param_name, **validations if validations.any?
       of_type = EasyParams::Types.const_get(of.to_s.camelcase)
-      public_send(:attribute, param_name, EasyParams::Types::Array.of(of_type), &block)
+      type = EasyParams::Types::Array
+      type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
+      public_send(:attribute, param_name, type.of(of_type), &block)
     end
 
-    def self.param(method_name, type_name, of: nil, default: nil, &block)
+    def self.param(method_name, type_name, of: nil, default: nil, **validations, &block)
       type = EasyParams::Types.const_get(type_name.to_s.camelcase)
       type = type.default(default) if default
       type = type.of(EasyParams::Types.const_get(of.to_s.camelcase)) if of && type_name != :each
-
+      validates method_name, **validations if validations.any?
       public_send(:attribute, method_name, type, &block)
     end
 

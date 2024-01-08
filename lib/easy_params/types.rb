@@ -7,7 +7,7 @@ module EasyParams
     Integer   = Dry::Types['params.integer'].optional.meta(omittable: true).default(nil)
     Decimal   = Dry::Types['params.decimal'].optional.meta(omittable: true).default(nil)
     Float     = Dry::Types['params.float'].optional.meta(omittable: true).default(nil)
-    Bool      = Dry::Types['strict.bool'].optional.meta(omittable: true).default(nil)
+    Bool      = Dry::Types['params.bool'].optional.meta(omittable: true).default(nil)
     String    = Dry::Types['string'].optional.meta(omittable: true).default(nil)
     Array     = Dry::Types['array'].meta(omittable: true).default([])
     Each      = Dry::Types['array'].of(Struct).meta(omittable: true).default([])

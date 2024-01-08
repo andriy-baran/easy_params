@@ -4,36 +4,32 @@ RSpec.describe EasyParams do
   vars do
     params_class do
       Class.new(EasyParams::Base) do
-        integer :id
-        integer :quantity, default: 1
+        integer :id, presence: { message: "can't be blank5" }
+        integer :quantity, default: 1, presence: { message: "can't be blank5" }, numericality: { only_integer: true, greater_than: 0 }
         each :sections do
-          integer :id
+          integer :id, presence: { message: "can't be blank2" }
           string :content, default: ''
           date :updated_at
           has :post do
-            integer :id
+            integer :id, presence: { message: "can't be blank1" }
             param :author, :string, default: ''
-            validates :id, presence: { message: "can't be blank1" }
           end
-          validates :id, presence: { message: "can't be blank2" }
         end
         has :post do
-          param :id, :integer
+          param :id, :integer, presence: { message: "can't be blank3" }
           param :author, :string, default: ''
-          validates :id, presence: { message: "can't be blank3" }
           param :sections, :each do
-            param :id, :integer
+            param :id, :integer, presence: { message: "can't be blank4" }
             param :content, :string, default: ''
             param :updated_at, :date
             has :meta do
-              array :copies, of: :string
+              array :copies,
+                    of: :string,
+                    length: { is: 6, message: 'should have 6 items' },
+                    normalize: ->(v) { v.map(&:to_s) }
             end
-            validates :id, presence: { message: "can't be blank4" }
           end
         end
-
-        validates :id, :quantity, presence: { message: "can't be blank5" }
-        validates :quantity, numericality: { only_integer: true, greater_than: 0 }
       end
     end
     attributes { {} }
@@ -135,7 +131,7 @@ RSpec.describe EasyParams do
         attributes do
           { id: 2, quantity: 5,
             sections: [{ updated_at: '2018-07-13', post: { author: 'Bob' } }],
-            post: { author: 'Bob', sections: [{ updated_at: '2019-07-13' }] } }
+            post: { author: 'Bob', sections: [{ updated_at: '2019-07-13', meta: { copies: [1] } }] } }
         end
       end
 
@@ -146,7 +142,8 @@ RSpec.describe EasyParams do
                               "sections[0].id": ["can't be blank2"],
                               "sections[0].post.id": ["can't be blank1"],
                               "post.id": ["can't be blank3"],
-                              "post.sections[0].id": ["can't be blank4"]
+                              "post.sections[0].id": ["can't be blank4"],
+                              "post.sections[0].meta.copies": ["should have 6 items"]
                             )
       end
 
