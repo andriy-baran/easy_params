@@ -12,16 +12,16 @@ RSpec.describe EasyParams do
           date :updated_at
           has :post do
             integer :id, presence: { message: "can't be blank1" }
-            param :author, :string, default: ''
+            string :author, default: ''
           end
         end
-        has :post do
-          param :id, :integer, presence: { message: "can't be blank3" }
-          param :author, :string, default: ''
-          param :sections, :each do
-            param :id, :integer, presence: { message: "can't be blank4" }
-            param :content, :string, default: ''
-            param :updated_at, :date
+        has :post, optional: true do
+          integer :id, presence: { message: "can't be blank3" }
+          string :author, default: ''
+          each :sections do
+            integer :id, presence: { message: "can't be blank4" }
+            string :content, default: ''
+            date :updated_at
             has :meta do
               array :copies,
                     of: :string,
@@ -151,16 +151,12 @@ RSpec.describe EasyParams do
         vars do
           params_class do
             Class.new(EasyParams::Base) do
-              param :title, :string
-              param :worker_ids, :array, of: :integer
+              string :title, presence: true
+              array :worker_ids, of: :integer
               has :place_attributes do
-                param :city, :string
-                param :address, :string
-
-                validates :city, :address, presence: true
+                string :city, presence: true
+                string :address, presence: true
               end
-
-              validates :title, presence: true
             end
           end
           attributes { { title: '', worker_ids: [1, 2], place_attributes: { city: '', address: '' } } }

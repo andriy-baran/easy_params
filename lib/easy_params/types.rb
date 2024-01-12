@@ -2,20 +2,18 @@
 
 module EasyParams
   module Types
-    Struct    = EasyParams::Base.meta(omittable: true)
-    Has       = EasyParams::Base.meta(omittable: true)
-    Integer   = Dry::Types['params.integer'].optional.meta(omittable: true).default(nil)
-    Decimal   = Dry::Types['params.decimal'].optional.meta(omittable: true).default(nil)
-    Float     = Dry::Types['params.float'].optional.meta(omittable: true).default(nil)
-    Bool      = Dry::Types['params.bool'].optional.meta(omittable: true).default(nil)
-    String    = Dry::Types['string'].optional.meta(omittable: true).default(nil)
-    Array     = Dry::Types['array'].meta(omittable: true).default([])
-    Each      = Dry::Types['array'].of(Struct).meta(omittable: true).default([])
-    Date      = Dry::Types['params.date'].optional.meta(omittable: true).default(nil)
-    DateTime  = Dry::Types['params.date_time'].optional.meta(omittable: true).default(nil)
-    Time      = Dry::Types['params.time'].optional.meta(omittable: true).default(nil)
+    Struct    = EasyParams::Base
+    Integer   = Dry::Types['params.integer'].optional.default(nil)
+    Decimal   = Dry::Types['params.decimal'].optional.default(nil)
+    Float     = Dry::Types['params.float'].optional.default(nil)
+    Bool      = Dry::Types['params.bool'].optional.default(nil)
+    String    = Dry::Types['coercible.string'].optional.default(nil)
+    Array     = Dry::Types['array'].default([].freeze)
+    Date      = Dry::Types['params.date'].optional.default(nil)
+    DateTime  = Dry::Types['params.date_time'].optional.default(nil)
+    Time      = Dry::Types['params.time'].optional.default(nil)
 
-    STRUCT_TYPES_LIST = [Struct, Has].freeze
-    ARRAY_OF_STRUCTS_TYPES_LIST = [Array.of(Struct), Each].freeze
+    STRUCT_TYPES_LIST = [Struct].freeze
+    ARRAY_OF_STRUCTS_TYPES_LIST = [Array.of(Struct)].freeze
   end
 end
