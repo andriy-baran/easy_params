@@ -2,26 +2,58 @@
 
 module EasyParams
   # Implements validations logic and nesting structures
-  class Base < Dry::Struct
-    include ActiveModel::Validations
+  # rubocop:disable all
+  class Base
+    include ActiveModel::Model
 
-    transform_keys(&:to_sym)
+    def initialize(params = {})
+      self.class.schema.each do |attr, type|
+        public_send("#{attr}=", type.coerce(params[attr])) if params
+      end
+    end
 
     def self.name
       'EasyParams::Base'
+    end
+
+    def self.array?
+      false
+    end
+
+    def self.optional
+      @optional ||= true
+      self
+    end
+
+    def self.coerce(v)
+      return if v.blank? && @optional
+
+      new(v)
+    end
+
+    def self.attribute(param_name, type)
+      attr_accessor param_name
+      schema[param_name] = type
+    end
+
+    def self.schema
+      @schema ||= {}
+    end
+
+    def attributes
+      self.class.schema.map { |k, type| [k, type.array? ? send(k).to_a : send(k)] }.to_h
     end
 
     validate do
       validate_nested
     end
 
-    # %w[Integer Decimal Float Bool String Date DateTime Time Array Struct StructDSL].each do |type|
     %w[Integer Decimal Float Bool String Date DateTime Time].each do |type_name|
       send(:define_singleton_method,
            type_name.underscore) do |param_name, default: nil, normalize: nil, optional: nil, **validations|
         type = EasyParams::Types.const_get(type_name)
         type = type.default(default) if default
-        type = type.meta(omittable: true) if optional
+        type = type.optional if optional
         type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
         validates param_name, **validations if validations.any?
         public_send(:attribute, param_name, type)
@@ -30,16 +62,16 @@ module EasyParams
 
     def self.each(param_name, normalize: nil, optional: nil, **validations, &block)
       validates param_name, **validations if validations.any?
-      type = EasyParams::Types::Array.of(EasyParams::Types::Struct)
-      type = type.meta(omittable: true) if optional
-      type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
+      type = EasyParams::Types::Each.with_type(&block)
+      type = type.optional if optional
+      # type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
       public_send(:attribute, param_name, type, &block)
     end
 
     def self.has(param_name, normalize: nil, optional: nil, **validations, &block)
       validates param_name, **validations if validations.any?
-      type = EasyParams::Types::Struct
-      type = type.meta(omittable: true) if optional
+      type = Class.new(EasyParams::Types::Struct).tap { |c| c.class_eval(&block) }
+      type = type.optional if optional
       type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
       public_send(:attribute, param_name, type, &block)
     end
@@ -48,9 +80,22 @@ module EasyParams
       validates param_name, **validations if validations.any?
       of_type = EasyParams::Types.const_get(of.to_s.camelcase)
       type = EasyParams::Types::Array
-      type = type.meta(omittable: true) if optional
-      type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
+      type = type.optional if optional
+      # type = type.normalize(&normalize) if normalize
       public_send(:attribute, param_name, type.of(of_type), &block)
+    end
+
+    def to_h
+      attributes.each.with_object({}) do |(key, value), result|
+        case value
+        when *EasyParams::Types::ARRAY_OF_STRUCTS_TYPES_LIST
+          result[key] = value.map(&:to_h)
+        when *EasyParams::Types::STRUCT_TYPES_LIST
+          result[key] = value.to_h
+        else
+          result[key] = value
+        end
+      end
     end
 
     private
@@ -98,4 +143,5 @@ module EasyParams
       end
     end
   end
+  # rubocop:enable all
 end
