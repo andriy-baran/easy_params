@@ -54,7 +54,7 @@ module EasyParams
         type = EasyParams::Types.const_get(type_name)
         type = type.default(default) if default
         type = type.optional if optional
-        type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
+        type = type.normalize(&normalize) if normalize
         validates param_name, **validations if validations.any?
         public_send(:attribute, param_name, type)
       end
@@ -64,7 +64,7 @@ module EasyParams
       validates param_name, **validations if validations.any?
       type = EasyParams::Types::Each.with_type(&block)
       type = type.optional if optional
-      # type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
+      type = type.normalize(&normalize) if normalize
       public_send(:attribute, param_name, type, &block)
     end
 
@@ -72,17 +72,17 @@ module EasyParams
       validates param_name, **validations if validations.any?
       type = Class.new(EasyParams::Types::Struct).tap { |c| c.class_eval(&block) }
       type = type.optional if optional
-      type = type.constructor { |value| value == Dry::Types::Undefined ? value : normalize.call(value) } if normalize
+      type = type.normalize(&normalize) if normalize
       public_send(:attribute, param_name, type, &block)
     end
 
-    def self.array(param_name, of:, normalize: nil, optional: nil, **validations, &block)
+    def self.array(param_name, of:, normalize: nil, optional: nil, **validations)
       validates param_name, **validations if validations.any?
       of_type = EasyParams::Types.const_get(of.to_s.camelcase)
       type = EasyParams::Types::Array
       type = type.optional if optional
-      # type = type.normalize(&normalize) if normalize
-      public_send(:attribute, param_name, type.of(of_type), &block)
+      type = type.normalize(&normalize) if normalize
+      public_send(:attribute, param_name, type.of(of_type))
     end
 
     def to_h

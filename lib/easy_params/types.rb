@@ -9,10 +9,11 @@ module EasyParams
         @title == :array
       end
 
-      def initialize(title, default = nil, &coerce_proc)
+      def initialize(title = nil, default = nil, normalize_proc = nil, &coerce_proc)
         @title = title
         @default = default
         @coerce_proc = coerce_proc
+        @normalize_proc = normalize_proc
         @optional = nil
       end
 
@@ -26,27 +27,34 @@ module EasyParams
       end
 
       def coerce(value)
+        value = @normalize_proc.call(value) if @normalize_proc
         return @default if value.nil? && @default
         return value unless value.is_a?(::String)
 
         @coerce_proc.call(value) || @default
+      end
+
+      def normalize(&block)
+        self.class.new(@title, @default, block, &@coerce_proc)
       end
     end
 
     class Collection < Generic
       include Enumerable
 
-      def initialize(default = [], of: nil)
-        super(:array, default)
+      def initialize(title = nil, default = [], normalize_proc = nil, of: nil)
+        super(:array, default, normalize_proc)
         @of_type = of
       end
 
       def of(of_type)
-        self.class.new(of: of_type)
+        self.class.new(@title, @default, @normalize_proc, of: of_type)
       end
 
       def coerce(value)
-        self.class.new(Array(value).map { |v| @of_type.coerce(v) })
+        binding.pry if @normalize_proc
+        value = @normalize_proc.call(Array(value)) if @normalize_proc
+        self.class.new(@title, Array(value).map { |v| @of_type.coerce(v) }, @normalize_proc)
       end
 
       def each(&block)
@@ -55,14 +63,14 @@ module EasyParams
     end
 
     class StructsCollection < Collection
-      def initialize(default = [], of: nil)
+      def initialize(title = nil, default = [], normalize_proc = nil, of: nil)
         super
         @title = :array_of_structs
       end
 
       def with_type(&block)
         of_type = Class.new(EasyParams::Types::Struct).tap { |c| c.class_eval(&block) }
-        self.class.new(of: of_type)
+        self.class.new(@title, @default, @normalize_proc, of: of_type)
       end
     end
 
