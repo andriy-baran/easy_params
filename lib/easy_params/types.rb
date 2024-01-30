@@ -4,12 +4,10 @@ module EasyParams
   module Types
     class CoercionError < StandardError; end
 
-    TRUE_VALUES = %w[1 on On ON t true True TRUE T y yes Yes YES Y].freeze
-    FALSE_VALUES = %w[0 off Off OFF f false False FALSE F n no No NO N].freeze
-    BOOLEAN_MAP = {}.merge(
-      [true, *TRUE_VALUES].to_h { |v| [v, true] },
-      [false, *FALSE_VALUES].to_h { |v| [v, false] }
-    ).freeze
+    BOOLEAN_MAP =
+      { '1' => true, 't' => true, 'true' => true, 'True' => true, 'TRUE' => true, 'T' => true }.merge(
+        { '0' => false, 'f' => false, 'false' => false, 'False' => false, 'FALSE' => false, 'F' => false }
+      ).freeze
 
     Struct    = Class.new(EasyParams::Base).new
     Array     = Collection.new(:array)

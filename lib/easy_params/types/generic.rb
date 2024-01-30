@@ -17,23 +17,28 @@ module EasyParams
       end
 
       def default(value)
-        self.class.new(@title, value, @normalize_proc, &@coerce_proc)
+        self.class.new(@title, value, @optional, @normalize_proc, &@coerce_proc)
       end
 
       def optional
         self.class.new(@title, @default, true, @normalize_proc, &@coerce_proc)
       end
 
-      def coerce(value)
-        value = @normalize_proc.call(value) if @normalize_proc
-        return @default if value.nil? && @default
-        return value unless value.is_a?(::String)
-
-        @coerce_proc.call(value) || @default
+      def optional?
+        @optional
       end
 
       def normalize(&block)
         self.class.new(@title, @default, @optional, block, &@coerce_proc)
+      end
+
+      def coerce(value)
+        value = @normalize_proc.call(value) if @normalize_proc
+        return @default if value.nil?
+
+        @coerce_proc.call(value)
+      rescue StandardError
+        @default
       end
     end
   end
