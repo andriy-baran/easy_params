@@ -12,7 +12,7 @@ module EasyParams
       end
 
       def of(of_type)
-        self.class.new(@title, @default, @optional, @normalize_proc, of: of_type, &@coerce_proc)
+        self.class.new(@title, @default, @normalize_proc, of: of_type, &@coerce_proc)
       end
 
       def coerce(value)
@@ -23,11 +23,11 @@ module EasyParams
       end
 
       def normalize(&block)
-        self.class.new(@title, @default, @optional, block, of: @of_type, &@coerce_proc)
+        self.class.new(@title, @default, block, of: @of_type, &@coerce_proc)
       end
 
       def self.optional
-        self.class.new(@title, @default, true, @normalize_proc, of: @of_type, &@coerce_proc)
+        self.class.new(@title, @default, @normalize_proc, of: @of_type, &@coerce_proc)
       end
 
       def default(value)

@@ -8,13 +8,8 @@ module EasyParams
         false
       end
 
-      def optional
-        @optional ||= true
-        self
-      end
-
       def coerce(input)
-        return if input.blank? && @optional
+        return if input.blank?
 
         self.class.new(input)
       end

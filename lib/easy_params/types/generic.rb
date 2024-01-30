@@ -8,20 +8,19 @@ module EasyParams
         @title == :array
       end
 
-      def initialize(title, default = nil, optional = nil, normalize_proc = nil, &coerce_proc)
+      def initialize(title, default = nil, normalize_proc = nil, &coerce_proc)
         @title = title
         @default = default
         @coerce_proc = coerce_proc
         @normalize_proc = normalize_proc
-        @optional = optional
       end
 
       def default(value)
-        self.class.new(@title, value, @optional, @normalize_proc, &@coerce_proc)
+        self.class.new(@title, value, @normalize_proc, &@coerce_proc)
       end
 
       def optional
-        self.class.new(@title, @default, true, @normalize_proc, &@coerce_proc)
+        self.class.new(@title, @default, @normalize_proc, &@coerce_proc)
       end
 
       def optional?
@@ -29,7 +28,7 @@ module EasyParams
       end
 
       def normalize(&block)
-        self.class.new(@title, @default, @optional, block, &@coerce_proc)
+        self.class.new(@title, @default, block, &@coerce_proc)
       end
 
       def coerce(value)

@@ -15,7 +15,7 @@ RSpec.describe EasyParams do
             string :author, default: ''
           end
         end
-        has :post, optional: true do
+        has :post do
           integer :id, presence: { message: "can't be blank3" }
           string :author, default: ''
           each :sections do

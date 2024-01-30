@@ -9,17 +9,6 @@ RSpec.describe EasyParams::Types::Date do
     end
   end
 
-  describe '#optional' do
-    it 'is not optional by initially' do
-      expect(type.optional?).to eq nil
-    end
-
-    it 'creates new type marked as optional' do
-      optional_type = type.optional
-      expect(optional_type.optional?).to eq true
-    end
-  end
-
   describe '#default' do
     it 'creates new type with default value' do
       type_with_default = type.default(1)
