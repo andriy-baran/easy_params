@@ -29,11 +29,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  version_string = ['>= 3.2', '< 8']
+  version_string = ['>= 3.2']
 
   spec.add_runtime_dependency 'activemodel', version_string
-
-  # spec.add_dependency 'dry-logic', '~> 0.4.2'
-  spec.add_dependency 'dry-struct', '~> 1.4'
-  spec.add_dependency 'dry-types', '~> 1.5'
 end

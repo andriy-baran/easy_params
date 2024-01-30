@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'dry-struct'
-require 'dry-types'
 require 'active_model'
 require 'easy_params/types/generic'
 require 'easy_params/types/collection'
