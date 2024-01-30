@@ -4,11 +4,11 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/17872804ce576b8b0df2/maintainability)](https://codeclimate.com/github/andriy-baran/easy_params/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/17872804ce576b8b0df2/test_coverage)](https://codeclimate.com/github/andriy-baran/easy_params/test_coverage)
 
-Provides an easy way define structure, validation rules, type coercion and set default values for any hash-like structure. It's built on top of `dry-types`, `dry-structure` and `active_model/validations`.
+Provides an easy way define structure, validation rules, type coercion and set default values for any hash-like structure. It's built on top of `active_model`.
 
 ## Types
 
-Dry types are wrapped by class methods. Avaliable types: `integer`, `decimal`, `float`, `bool`, `string`, `array`, `date`, `datetime`, `time`, `struct`
+Dry types are wrapped by class methods. Avaliable types: `integer`, `decimal`, `float`, `bool`, `string`, `array`, `date`, `datetime`, `time`
 
 ## Installation
 
@@ -28,24 +28,39 @@ Or install it yourself as:
 
 ## Usage
 
+To define attribute we have a set of methods which match types list. Ex.
+```ruby
+integer(param_name, default: nil, normalize: nil, **validations)
+```
+* `:default` provides a value to return if got `nil` as input or there were errors during coersion.
+* `normalize` a proc or lambda that accepts single argument and changes it in some way. It's get called before coercion.
+* `validations` mimics `activemodel/validation` can be any supported validation `presence: true, numericality: { only_integer: true, greater_than: 0 }`
+
+In addition we have special option for an `array` type
+* `:of` accepts `:integer`, `:decimal`, `:float`, `:bool`, `:string`, `:date`, `:datetime`, `:time` (`:array` is not supported)
+
+There are two special types:
+
+| type              | method to define | default |
+|-------------------|------------------|---------|
+| :struct           | has              | {}      |
+| :array_of_structs | each             | []      |
+
 ```ruby
 # app/params/api/v2/icqa/move_params.rb
 class Api::V1::Carts::MoveParams < EasyParams::Base
-  attribute :receive_cart_id, integer
-  attribute :i_am_sure, bool
-  attribute :location_code, string.default('')
-  attribute :sections, struct do
-    attribute :from, string
-    attribute :to, string
+  integer :receive_cart_id, presence: { message: "can't be blank" }
+  bool :i_am_sure
+  string :location_code, default: '', presence: { message: "can't be blank" }
+  has :section do
+    string :from
+    string :to
   end
-  attribute :options, array.of(struct) do
-    attribute :option_type_count, integer
-    attribute :option_type_value, integer
-
-    validates :option_type_count, :option_type_value, presence: { message: "can't be blank" }
+  array :variant_ids, of: :integer
+  each :options do
+    integer :option_type_count, presence: { message: "can't be blank" }
+    integer :option_type_value, presence: { message: "can't be blank" }
   end
-
-  validates :receive_cart_id, :location_code, presence: { message: "can't be blank" }
 end
 ```
 Validation messages for nested attributes will look like this.
@@ -57,21 +72,6 @@ Validation messages for nested attributes will look like this.
   :"post.sections[0].id"=>an_instance_of(Array)
  }
 ```
-Optionally you can use more compact form
-```ruby
-class MyParams < EasyParams::Base
-  extend EasyParams::DSL
-
-  quantity integer.default(1)
-  posts each do
-    content string.default('')
-  end
-  user has do
-    role string
-  end
-end
-```
-This hovewer has some limitations: for attributes have name like `integer`, `decimal`, `float`, `bool`, `string`, `array`, `date`, `datetime`, `time`, `struct` it won't work as expected.
 
 More examples here [params_spec.rb](https://github.com/andriy-baran/easy_params/blob/master/spec/easy_params_spec.rb)
 
