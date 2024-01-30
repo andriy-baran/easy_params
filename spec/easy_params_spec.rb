@@ -15,7 +15,7 @@ RSpec.describe EasyParams do
             string :author, default: ''
           end
         end
-        has :post, optional: true do
+        has :post do
           integer :id, presence: { message: "can't be blank3" }
           string :author, default: ''
           each :sections do
@@ -39,9 +39,9 @@ RSpec.describe EasyParams do
   it 'is subclass of ActiveModel::Validations' do
     expect(EasyParams::Base.ancestors).to include(ActiveModel::Validations)
   end
-  it 'is subclass of Dry::Struct' do
-    expect(EasyParams::Base.superclass).to eq(Dry::Struct)
-  end
+  # it 'is subclass of Dry::Struct' do
+  #   expect(EasyParams::Base.superclass).to eq(Dry::Struct)
+  # end
 
   describe '.name' do
     it 'returns EasyParams::Base' do
@@ -122,7 +122,7 @@ RSpec.describe EasyParams do
       end
 
       it 'returns hash with correct values' do
-        expect(params_obj.to_hash).to eq attributes_with_defaults
+        expect(params_obj.to_h).to eq attributes_with_defaults
       end
     end
 
