@@ -16,10 +16,10 @@ module EasyParams
       end
 
       def coerce(value)
-        value = @normalize_proc.call(Array(value)) if @normalize_proc
-        self.class.new(@title, Array(value).map do |v|
-                                 @of_type.coerce(v)
-                               end, @normalize_proc, of: @of_type, &@coerce_proc)
+        input = value || @default
+        input = @normalize_proc.call(Array(input)) if @normalize_proc
+        coerced = Array(input).map { |v| @of_type.coerce(v) }
+        self.class.new(@title, coerced, @normalize_proc, of: @of_type, &@coerce_proc)
       end
 
       def normalize(&block)

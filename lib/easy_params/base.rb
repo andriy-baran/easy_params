@@ -7,9 +7,11 @@ module EasyParams
     include EasyParams::Types::Struct
     include EasyParams::Validation
 
+    attr_writer :default
+
     def initialize(params = {})
       self.class.schema.each do |attr, type|
-        public_send("#{attr}=", type.coerce(params[attr])) if params
+        public_send("#{attr}=", type.coerce(params.to_h[attr]))
       end
     end
 
@@ -28,25 +30,25 @@ module EasyParams
         @schema ||= {}
       end
 
-      def each(param_name, normalize: nil, **validations, &block)
+      def each(param_name, default: nil, normalize: nil, **validations, &block)
         validates param_name, **validations if validations.any?
         type = EasyParams::Types::Each.with_type(&block)
-        type = customize_type(type, nil, &normalize)
-        public_send(:attribute, param_name, type)
+        type = customize_type(type, default, &normalize)
+        attribute(param_name, type)
       end
 
-      def has(param_name, normalize: nil, **validations, &block)
+      def has(param_name, default: nil, normalize: nil, **validations, &block)
         validates param_name, **validations if validations.any?
         type = Class.new(EasyParams::Types::Struct.class).tap { |c| c.class_eval(&block) }.new
-        type = customize_type(type, nil, &normalize)
-        public_send(:attribute, param_name, type)
+        type = customize_type(type, default, &normalize)
+        attribute(param_name, type)
       end
 
-      def array(param_name, of:, normalize: nil, **validations)
+      def array(param_name, of:, default: nil, normalize: nil, **validations)
         validates param_name, **validations if validations.any?
         type = EasyParams::Types::Array.of(EasyParams::Types.const_get(of.to_s.camelcase))
-        type = customize_type(type, nil, &normalize)
-        public_send(:attribute, param_name, type)
+        type = customize_type(type, default, &normalize)
+        attribute(param_name, type)
       end
 
       private
@@ -64,7 +66,7 @@ module EasyParams
         validates param_name, **validations if validations.any?
         type = EasyParams::Types.const_get(type_name)
         type = customize_type(type, default, &normalize)
-        public_send(:attribute, param_name, type)
+        attribute(param_name, type)
       end
     end
 

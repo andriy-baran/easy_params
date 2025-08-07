@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'ostruct'
 
 RSpec.describe EasyParams do
   vars do
@@ -6,20 +7,20 @@ RSpec.describe EasyParams do
       Class.new(EasyParams::Base) do
         integer :id, presence: { message: "can't be blank5" }
         integer :quantity, default: 1, presence: { message: "can't be blank5" }, numericality: { only_integer: true, greater_than: 0 }
-        each :sections do
-          integer :id, presence: { message: "can't be blank2" }
+        each :sections, default: [{}, {}] do
+          integer :id, presence: { message: "id can't be blank2" }
           string :content, default: ''
           date :updated_at
           has :post do
-            integer :id, presence: { message: "can't be blank1" }
+            integer :id, presence: { message: "id can't be blank1" }
             string :author, default: ''
           end
         end
-        has :post do
-          integer :id, presence: { message: "can't be blank3" }
+        has :post, default: { author: 'Bob' } do
+          integer :id, presence: { message: "id can't be blank3" }
           string :author, default: ''
           each :sections do
-            integer :id, presence: { message: "can't be blank4" }
+            integer :id, presence: { message: "id can't be blank4" }
             string :content, default: ''
             date :updated_at
             has :meta do
@@ -52,7 +53,7 @@ RSpec.describe EasyParams do
   context 'public inteface' do
     context 'when validation passes' do
       vars do
-        attributes { { id: 2, quantity: 5 } }
+        attributes { { id: 2, quantity: 5, post: { id: '4' }, sections: [{ id: '5' }, { id: '6' }] } }
       end
 
       it 'valid? returns true' do
@@ -119,10 +120,32 @@ RSpec.describe EasyParams do
             }
           }
         end
+        attributes_when_nil do
+          {
+            id: nil,
+            post: { author: 'Bob', id: nil, sections: [] },
+            quantity: 1,
+            sections: [
+              { content: '', id: nil, post: nil, updated_at: nil },
+              { content: '', id: nil, post: nil, updated_at: nil }
+            ]
+          }
+        end
       end
 
       it 'returns hash with correct values' do
         expect(params_obj.to_h).to eq attributes_with_defaults
+      end
+
+      context 'when no value provided' do
+        vars do
+          attributes { nil }
+        end
+
+        it 'should return empty collection' do
+          o = params_class.new(attributes)
+          expect(o.to_h).to eq attributes_when_nil
+        end
       end
     end
 
@@ -139,10 +162,10 @@ RSpec.describe EasyParams do
         params_obj.valid?
         expect(OpenStruct.new(params_obj.errors.messages)).
           to have_attributes(
-                              "sections[0].id": ["can't be blank2"],
-                              "sections[0].post.id": ["can't be blank1"],
-                              "post.id": ["can't be blank3"],
-                              "post.sections[0].id": ["can't be blank4"],
+                              "sections[0].id": ["id can't be blank2"],
+                              "sections[0].post.id": ["id can't be blank1"],
+                              "post.id": ["id can't be blank3"],
+                              "post.sections[0].id": ["id can't be blank4"],
                               "post.sections[0].meta.copies": ["should have 6 items"]
                             )
       end
@@ -175,7 +198,7 @@ RSpec.describe EasyParams do
 
     context 'when validation does not pass' do
       vars do
-        messages { ['Id can\'t be blank5'] }
+        messages { ["Sections[0] id can't be blank2", "Sections[1] id can't be blank2", "Post id can't be blank3", "Id can't be blank5"] }
       end
 
       it 'invalid? returns true' do

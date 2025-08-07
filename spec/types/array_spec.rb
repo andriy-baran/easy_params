@@ -17,11 +17,12 @@ RSpec.describe EasyParams::Types::Array do
       it 'fails' do
       end
     end
+
     context 'when bool elements' do
       it 'tries to coerce to integer' do
         of_type = array_of_struct.instance_variable_get(:@of_type)
         expect(array_of_struct.coerce(values).to_a).to match_array(
-          [nil, instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), nil, nil]
+          [nil, instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class), instance_of(of_type.class)]
         )
         expect(array_of_bool.coerce(values).to_a).to eq [nil, true, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
         expect(array_of_date.coerce(values).to_a).to eq [nil, nil, nil, nil, nil, nil, Date.parse('2011-11-03'), nil, Date.parse('2011-11-03'), Date.parse('2011-11-03'), nil, nil]
