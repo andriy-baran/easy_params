@@ -31,5 +31,5 @@ Gem::Specification.new do |spec|
 
   version_string = ['>= 3.2']
 
-  spec.add_runtime_dependency 'activemodel', version_string
+  spec.add_dependency 'activemodel', version_string
 end
