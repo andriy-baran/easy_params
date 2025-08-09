@@ -75,5 +75,13 @@ RSpec.describe EasyParams::Types::Integer do
         expect(configured_type.coerce(value3)).to eq 1
       end
     end
+
+    context 'when normalizer raises' do
+      it 'returns default value instead of raising' do
+        noisy_type = type.normalize { |_v| raise StandardError, 'boom' }
+        configured = noisy_type.default(42)
+        expect(configured.coerce('10')).to eq 42
+      end
+    end
   end
 end

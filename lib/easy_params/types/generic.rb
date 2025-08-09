@@ -19,14 +19,6 @@ module EasyParams
         self.class.new(@title, value, @normalize_proc, &@coerce_proc)
       end
 
-      def optional
-        self.class.new(@title, @default, @normalize_proc, &@coerce_proc)
-      end
-
-      def optional?
-        @optional
-      end
-
       def normalize(&block)
         self.class.new(@title, @default, block, &@coerce_proc)
       end

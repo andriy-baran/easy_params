@@ -210,5 +210,21 @@ RSpec.describe EasyParams do
         expect(params_obj.errors.to_a).to eq messages
       end
     end
+
+    describe '.attributes' do
+      vars do
+        params_class do
+          Class.new(EasyParams::Base) do
+            array :ids, of: :integer, default: [1, '2', 3.0], normalize: ->(arr) { arr.compact }
+            string :name, default: 'x'
+          end
+        end
+      end
+
+      it 'exposes arrays via to_a and scalars as raw values' do
+        obj = params_class.new(ids: [nil, '4'])
+        expect(obj.attributes).to eq(ids: [4], name: 'x')
+      end
+    end
   end
 end
