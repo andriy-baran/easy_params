@@ -1,14 +1,14 @@
 # EasyParams
 
-[![Gem Version](https://badge.fury.io/rb/nina.svg)](https://badge.fury.io/rb/nina)
+[![Gem Version](https://badge.fury.io/rb/easy_params.svg)](https://badge.fury.io/rb/easy_params)
 [![Maintainability](https://api.codeclimate.com/v1/badges/17872804ce576b8b0df2/maintainability)](https://codeclimate.com/github/andriy-baran/easy_params/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/17872804ce576b8b0df2/test_coverage)](https://codeclimate.com/github/andriy-baran/easy_params/test_coverage)
 
-Provides an easy way define structure, validation rules, type coercion and set default values for any hash-like structure. It's built on top of `active_model`.
+Provides an easy way to define structure, validation rules, type coercion, and default values for any hash-like structure. It's built on top of `ActiveModel`.
 
 ## Types
 
-Dry types are wrapped by class methods. Avaliable types: `integer`, `decimal`, `float`, `bool`, `string`, `array`, `date`, `datetime`, `time`
+Available types: `integer`, `decimal`, `float`, `bool`, `string`, `array`, `date`, `datetime`, `time`
 
 ## Installation
 
@@ -32,19 +32,53 @@ To define attribute we have a set of methods which match types list. Ex.
 ```ruby
 integer(param_name, default: nil, normalize: nil, **validations)
 ```
-* `:default` provides a value to return if got `nil` as input or there were errors during coersion.
-* `normalize` a proc or lambda that accepts single argument and changes it in some way. It's get called before coercion.
-* `validations` mimics `activemodel/validation` can be any supported validation `presence: true, numericality: { only_integer: true, greater_than: 0 }`
+* `:default` provides a value to return if we get `nil` as input or there were errors during coercion.
+* `:normalize` is a Proc or lambda that accepts a single argument and transforms it. It gets called before coercion.
+* `validations` mimic ActiveModel validations; can be any supported validation, e.g., `presence: true, numericality: { only_integer: true, greater_than: 0 }`
 
-In addition we have special option for an `array` type
+In addition, there is a special option for the `array` type:
 * `:of` accepts `:integer`, `:decimal`, `:float`, `:bool`, `:string`, `:date`, `:datetime`, `:time` (`:array` is not supported)
 
 There are two special types:
 
 | type              | method to define | default |
 |-------------------|------------------|---------|
-| :struct           | has              | {}      |
+| :struct           | has              | nil     |
 | :array_of_structs | each             | []      |
+
+### Defaults for nested types
+
+- **has (struct)**: `default:` must be a Hash. When the input is `nil`, the nested struct is instantiated with that hash; otherwise the provided input is used. If no `default:` is given and the input is `nil`, the value will be `nil`.
+
+  ```ruby
+  has :shipping_address, default: { country: 'US' } do
+    string :country, default: 'US'
+    string :city
+  end
+  ```
+
+- **each (array_of_structs)**: `default:` should be an Array (typically an array of hashes). When the input is `nil`, the collection defaults to an empty array `[]`. If you provide a default array, each element will be coerced into the nested struct.
+
+  ```ruby
+  each :items, default: [{ qty: 1 }] do
+    integer :qty, default: 1
+  end
+  ```
+
+- **Override precedence**: Container-level defaults override attribute-level defaults for the same keys. Attribute defaults apply only when the key is absent (or `nil`) in the provided default/input.
+
+  ```ruby
+  has :user, default: { role: 'admin' } do
+    string :role, default: 'guest'
+    string :name, default: 'Anonymous'
+  end
+  # input: nil => role: 'admin', name: 'Anonymous'
+
+  each :items, default: [{ qty: 2 }, {}] do
+    integer :qty, default: 1
+  end
+  # input: nil => items.map(&:qty) == [2, 1]
+  ```
 
 ```ruby
 # app/params/api/v2/icqa/move_params.rb
@@ -83,7 +117,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/easy_params. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/easy_params/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at [github.com/andriy-baran/easy_params](https://github.com/andriy-baran/easy_params). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/andriy-baran/easy_params/blob/master/CODE_OF_CONDUCT.md).
 
 
 ## License
@@ -92,4 +126,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the EasyParams project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/easy_params/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the EasyParams project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/andriy-baran/easy_params/blob/master/CODE_OF_CONDUCT.md).
