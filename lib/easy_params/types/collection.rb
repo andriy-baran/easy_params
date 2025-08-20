@@ -38,7 +38,7 @@ module EasyParams
     # base interface for array of structs type
     class StructsCollection < Collection
       def with_type(definition = nil, &block)
-        of_type = (definition || Class.new(EasyParams::Types::Struct.class).tap { |c| c.class_eval(&block) }).new
+        of_type = (definition || Class.new(EasyParams::Base).tap { |c| c.class_eval(&block) }).new
         self.class.new(@title, @default, @normalize_proc, of: of_type)
       end
     end

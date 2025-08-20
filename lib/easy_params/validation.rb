@@ -10,7 +10,7 @@ module EasyParams
         case value
         when EasyParams::Types::StructsCollection
           value.each(&:valid?)
-        when EasyParams::Types::Struct.class
+        when EasyParams::Base
           value.valid?
         end
       end
@@ -24,7 +24,7 @@ module EasyParams
           value.each.with_index do |element, i|
             aggregate_nested_errors[attr_name, element, "[#{i}]", error_key_prefix]
           end
-        when EasyParams::Types::Struct.class
+        when EasyParams::Base
           handle_nested_errors(value, error_key_prefix, attr_name, array_index)
         end
       end

@@ -32,6 +32,10 @@ module EasyParams
 
       def each(param_name, definition = nil, default: nil, normalize: nil, **validations, &block)
         validates param_name, **validations if validations.any?
+        if definition && !(definition < EasyParams::Base)
+          raise ArgumentError, "definition for attribute #{param_name.inspect} must be a subclass of EasyParams::Base"
+        end
+
         type = EasyParams::Types::Each.with_type(definition, &block)
         type = customize_type(type, default, &normalize)
         attribute(param_name, type)
@@ -39,7 +43,11 @@ module EasyParams
 
       def has(param_name, definition = nil, default: nil, normalize: nil, **validations, &block)
         validates param_name, **validations if validations.any?
-        type = (definition || Class.new(EasyParams::Types::Struct.class).tap { |c| c.class_eval(&block) }).new
+        if definition && !(definition < EasyParams::Base)
+          raise ArgumentError, "definition for attribute #{param_name.inspect} must be a subclass of EasyParams::Base"
+        end
+
+        type = (definition || Class.new(EasyParams::Base).tap { |c| c.class_eval(&block) }).new
         type = customize_type(type, default, &normalize)
         attribute(param_name, type)
       end
@@ -83,7 +91,7 @@ module EasyParams
         result[key] = case value
                       when EasyParams::Types::StructsCollection
                         value.map(&:to_h)
-                      when EasyParams::Types::Struct.class
+                      when EasyParams::Base
                         value.to_h
                       else
                         value

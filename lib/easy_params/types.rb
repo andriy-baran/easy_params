@@ -9,7 +9,7 @@ module EasyParams
         { '0' => false, 'f' => false, 'false' => false, 'False' => false, 'FALSE' => false, 'F' => false }
       ).freeze
 
-    Struct    = Class.new(EasyParams::Base).new
+    Struct    = EasyParams::Base.new
     Array     = Collection.new(:array)
     Each      = StructsCollection.new(:array_of_structs)
     Integer   = Generic.new(:integer, &:to_i)

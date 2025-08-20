@@ -3,14 +3,14 @@
 RSpec.describe 'Type definition arguments for has and each' do
   vars do
     section_class do
-      Class.new(EasyParams::Types::Struct.class) {
+      Class.new(EasyParams::Base) {
         integer :id
         string :content, default: ''
       }
     end
 
     post_class do
-      Class.new(EasyParams::Types::Struct.class) {
+      Class.new(EasyParams::Base) {
         integer :id
         string :author, default: ''
       }
@@ -58,6 +58,17 @@ RSpec.describe 'Type definition arguments for has and each' do
         sections: [],
         post: nil
       )
+    end
+  end
+
+  context 'when definition is not a subclass of EasyParams::Base' do
+    it 'raises an error' do
+      expect {
+        params_class.each(:interests, Array)
+      }.to raise_error(ArgumentError, 'definition for attribute :interests must be a subclass of EasyParams::Base')
+      expect {
+        params_class.has(:page, Hash)
+      }.to raise_error(ArgumentError, 'definition for attribute :page must be a subclass of EasyParams::Base')
     end
   end
 end
