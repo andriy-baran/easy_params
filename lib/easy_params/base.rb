@@ -30,16 +30,16 @@ module EasyParams
         @schema ||= {}
       end
 
-      def each(param_name, default: nil, normalize: nil, **validations, &block)
+      def each(param_name, definition = nil, default: nil, normalize: nil, **validations, &block)
         validates param_name, **validations if validations.any?
-        type = EasyParams::Types::Each.with_type(&block)
+        type = EasyParams::Types::Each.with_type(definition, &block)
         type = customize_type(type, default, &normalize)
         attribute(param_name, type)
       end
 
-      def has(param_name, default: nil, normalize: nil, **validations, &block)
+      def has(param_name, definition = nil, default: nil, normalize: nil, **validations, &block)
         validates param_name, **validations if validations.any?
-        type = Class.new(EasyParams::Types::Struct.class).tap { |c| c.class_eval(&block) }.new
+        type = (definition || Class.new(EasyParams::Types::Struct.class).tap { |c| c.class_eval(&block) }).new
         type = customize_type(type, default, &normalize)
         attribute(param_name, type)
       end

@@ -26,10 +26,6 @@ module EasyParams
         self.class.new(@title, @default, block, of: @of_type, &@coerce_proc)
       end
 
-      def self.optional
-        self.class.new(@title, @default, @normalize_proc, of: @of_type, &@coerce_proc)
-      end
-
       def default(value)
         self.class.new(@title, value, @normalize_proc, of: @of_type, &@coerce_proc)
       end
@@ -41,8 +37,8 @@ module EasyParams
 
     # base interface for array of structs type
     class StructsCollection < Collection
-      def with_type(&block)
-        of_type = Class.new(EasyParams::Types::Struct.class).tap { |c| c.class_eval(&block) }.new
+      def with_type(definition = nil, &block)
+        of_type = (definition || Class.new(EasyParams::Types::Struct.class).tap { |c| c.class_eval(&block) }).new
         self.class.new(@title, @default, @normalize_proc, of: of_type)
       end
     end
