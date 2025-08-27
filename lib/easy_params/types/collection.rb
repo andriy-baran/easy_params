@@ -33,6 +33,10 @@ module EasyParams
       def each(&block)
         @default.each(&block)
       end
+
+      def [](index)
+        @default[index]
+      end
     end
 
     # base interface for array of structs type

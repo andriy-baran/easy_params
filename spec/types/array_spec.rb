@@ -251,4 +251,13 @@ RSpec.describe EasyParams::Types::Array do
       end
     end
   end
+
+  describe '#[]' do
+    it 'returns the element at the given index' do
+      array = array_of_struct.default([{ a: 1 }, { b: 2 }, { c: 3 }])
+      expect(array[0]).to eq({ a: 1 })
+      expect(array[1]).to eq({ b: 2 })
+      expect(array[2]).to eq({ c: 3 })
+    end
+  end
 end
