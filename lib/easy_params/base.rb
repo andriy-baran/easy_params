@@ -16,6 +16,11 @@ module EasyParams
     end
 
     class << self
+      def inherited(subclass)
+        super
+        subclass.clone_schema(self)
+      end
+
       def name
         'EasyParams::Base'
       end
@@ -57,6 +62,10 @@ module EasyParams
         type = EasyParams::Types::Array.of(EasyParams::Types.const_get(of.to_s.camelcase))
         type = customize_type(type, default, &normalize)
         attribute(param_name, type)
+      end
+
+      def clone_schema(parent)
+        @schema = parent.schema.dup
       end
 
       private
