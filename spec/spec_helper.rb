@@ -1,8 +1,10 @@
 require 'rspec_vars_helper'
 require 'simplecov'
+require "simplecov_json_formatter"
 require 'pry'
 SimpleCov.start do
   add_filter '/spec/'
+  formatter SimpleCov::Formatter::JSONFormatter
 end
 require "easy_params"
 

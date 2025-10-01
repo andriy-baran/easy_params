@@ -1,8 +1,8 @@
 # EasyParams
 
+[![Maintainability](https://qlty.sh/gh/andriy-baran/projects/easy_params/maintainability.svg)](https://qlty.sh/gh/andriy-baran/projects/easy_params)
+[![Code Coverage](https://qlty.sh/gh/andriy-baran/projects/easy_params/coverage.svg)](https://qlty.sh/gh/andriy-baran/projects/easy_params)
 [![Gem Version](https://badge.fury.io/rb/easy_params.svg)](https://badge.fury.io/rb/easy_params)
-[![Maintainability](https://api.codeclimate.com/v1/badges/17872804ce576b8b0df2/maintainability)](https://codeclimate.com/github/andriy-baran/easy_params/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/17872804ce576b8b0df2/test_coverage)](https://codeclimate.com/github/andriy-baran/easy_params/test_coverage)
 
 Provides an easy way to define structure, validation rules, type coercion, and default values for any hash-like structure. It's built on top of `ActiveModel`.
 

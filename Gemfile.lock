@@ -111,7 +111,7 @@ DEPENDENCIES
   rspec (~> 3.0)
   rspec_vars_helper (~> 0.1)
   rubocop
-  simplecov (~> 0.17)
+  simplecov
 
 BUNDLED WITH
    2.7.1
