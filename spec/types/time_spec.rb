@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'Time' do
-  let(:type) { EasyParams::Base.types[:time] }
+  let(:type) { EasyParams.types[:time] }
 
   describe '#array?' do
     it 'returns false' do

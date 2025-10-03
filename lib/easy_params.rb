@@ -10,9 +10,14 @@ require 'easy_params/base'
 require 'easy_params/types'
 require 'easy_params/version'
 
+# EasyParams provides a simple way to define parameter classes with type coercion and validation
 module EasyParams
   class Error < StandardError; end
   class CoercionError < StandardError; end
+
+  def self.types
+    @types ||= {}
+  end
 
   def self.register_type(name, type = nil, &coerce_proc)
     if type.nil? && coerce_proc
@@ -20,7 +25,7 @@ module EasyParams
     elsif type.nil? && !coerce_proc
       raise ArgumentError, 'Either a type instance or a coercion block must be provided'
     end
-    Base.types[name] = type
+    types[name] = type
     Base.define_type_method(name)
   end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'Bool' do
-  let(:type) { EasyParams::Base.types[:bool] }
+  let(:type) { EasyParams.types[:bool] }
 
   describe '#array?' do
     it 'returns false' do
@@ -26,7 +26,7 @@ RSpec.describe 'Bool' do
   describe '#coerce' do
     context 'when initial type setup' do
       it 'tries to coerce to integer' do
-        EasyParams::Types::BOOLEAN_MAP.each do |value, output|
+        EasyParams::BOOLEAN_MAP.each do |value, output|
           expect(type.coerce(value)).to eq output
         end
         expect(type.coerce(nil)).to eq nil

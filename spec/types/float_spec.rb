@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'Float' do
-  let(:type) { EasyParams::Base.types[:float] }
+  let(:type) { EasyParams.types[:float] }
 
   describe '#array?' do
     it 'returns false' do

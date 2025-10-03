@@ -20,7 +20,7 @@ RSpec.describe 'Custom type registration' do
 
     after do
       # Clean up by removing the custom type
-      EasyParams::Base.types.delete(:weight)
+      EasyParams.types.delete(:weight)
     end
 
     describe 'basic weight type usage' do
@@ -235,9 +235,9 @@ RSpec.describe 'Custom type registration' do
     end
 
     after do
-      EasyParams::Base.types.delete(:weight)
-      EasyParams::Base.types.delete(:temperature)
-      EasyParams::Base.types.delete(:distance)
+      EasyParams.types.delete(:weight)
+      EasyParams.types.delete(:temperature)
+      EasyParams.types.delete(:distance)
     end
 
     it 'allows using multiple custom types together' do
@@ -281,7 +281,7 @@ RSpec.describe 'Custom type registration' do
 
     it 'allows redefining existing types' do
       # Store original string type
-      original_string_type = EasyParams::Base.types[:string]
+      original_string_type = EasyParams.types[:string]
 
       # Redefine string type with custom behavior
       EasyParams.register_type :string do |value|
@@ -296,7 +296,7 @@ RSpec.describe 'Custom type registration' do
       expect(obj.name).to eq('JOHN')  # Should be stripped and uppercased
 
       # Restore original string type
-      EasyParams::Base.types[:string] = original_string_type
+      EasyParams.types[:string] = original_string_type
     end
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'Date' do
-  let(:type) { EasyParams::Base.types[:date] }
+  let(:type) { EasyParams.types[:date] }
 
   describe '#array?' do
     it 'returns false' do

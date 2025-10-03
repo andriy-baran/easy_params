@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'String' do
-  let(:type) { EasyParams::Base.types[:string] }
+  let(:type) { EasyParams.types[:string] }
 
   describe '#array?' do
     it 'returns false' do

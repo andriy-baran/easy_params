@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.describe EasyParams::Types::Array do
-  let(:array_of_bool) { EasyParams::Types::Array.of(EasyParams::Base.types[:bool]) }
-  let(:array_of_date) { EasyParams::Types::Array.of(EasyParams::Base.types[:date]) }
-  let(:array_of_date_time) { EasyParams::Types::Array.of(EasyParams::Base.types[:datetime]) }
-  let(:array_of_decimal) { EasyParams::Types::Array.of(EasyParams::Base.types[:decimal]) }
-  let(:array_of_float) { EasyParams::Types::Array.of(EasyParams::Base.types[:float]) }
-  let(:array_of_integer) { EasyParams::Types::Array.of(EasyParams::Base.types[:integer]) }
-  let(:array_of_string) { EasyParams::Types::Array.of(EasyParams::Base.types[:string]) }
-  let(:array_of_time) { EasyParams::Types::Array.of(EasyParams::Base.types[:time]) }
-  let(:array_of_struct) { EasyParams::Types::Array.of(EasyParams::Base.types[:struct]) }
+  let(:array_of_bool) { EasyParams::Types::Array.of(EasyParams.types[:bool]) }
+  let(:array_of_date) { EasyParams::Types::Array.of(EasyParams.types[:date]) }
+  let(:array_of_date_time) { EasyParams::Types::Array.of(EasyParams.types[:datetime]) }
+  let(:array_of_decimal) { EasyParams::Types::Array.of(EasyParams.types[:decimal]) }
+  let(:array_of_float) { EasyParams::Types::Array.of(EasyParams.types[:float]) }
+  let(:array_of_integer) { EasyParams::Types::Array.of(EasyParams.types[:integer]) }
+  let(:array_of_string) { EasyParams::Types::Array.of(EasyParams.types[:string]) }
+  let(:array_of_time) { EasyParams::Types::Array.of(EasyParams.types[:time]) }
+  let(:array_of_struct) { EasyParams::Types::Array.of(EasyParams.types[:struct]) }
   let(:values) { [nil, '1', 2, 1.1, '1.1', '1.1'.to_d, '2011-11-03', '33-03-2011', '2011-11-03 10:23:45', '2011-11-03 30:23:45', [], {}] }
 
   describe '#coerce' do
@@ -202,7 +202,7 @@ RSpec.describe EasyParams::Types::Array do
       it 'works with of method' do
         array_with_default_and_of = EasyParams::Types::Array
           .default(['1', '2', '3'])
-          .of(EasyParams::Base.types[:integer])
+          .of(EasyParams.types[:integer])
 
         result = array_with_default_and_of.coerce(nil)
         expect(result.to_a).to eq [1, 2, 3]

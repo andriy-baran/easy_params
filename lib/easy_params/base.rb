@@ -19,7 +19,6 @@ module EasyParams
       def inherited(subclass)
         super
         subclass.clone_schema(self)
-        subclass.types = types.dup
       end
 
       def name
@@ -35,12 +34,6 @@ module EasyParams
       def schema
         @schema ||= {}
       end
-
-      def types
-        @types ||= {}
-      end
-
-      attr_writer :types
 
       def each(param_name, definition = nil, default: nil, normalize: nil, **validations, &block)
         validates param_name, **validations if validations.any?
@@ -66,7 +59,7 @@ module EasyParams
 
       def array(param_name, of:, default: nil, normalize: nil, **validations)
         validates param_name, **validations if validations.any?
-        type = EasyParams::Types::Array.of(types[of])
+        type = EasyParams::Types::Array.of(EasyParams.types[of])
         type = customize_type(type, default, &normalize)
         attribute(param_name, type)
       end
@@ -78,7 +71,7 @@ module EasyParams
       def define_type_method(type_name)
         define_singleton_method(type_name) do |param_name, default: nil, normalize: nil, **validations|
           validates param_name, **validations if validations.any?
-          type = customize_type(types[type_name], default, &normalize)
+          type = customize_type(EasyParams.types[type_name], default, &normalize)
           attribute(param_name, type)
         end
       end
