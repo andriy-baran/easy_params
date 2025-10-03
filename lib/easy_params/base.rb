@@ -66,7 +66,7 @@ module EasyParams
 
       def array(param_name, of:, default: nil, normalize: nil, **validations)
         validates param_name, **validations if validations.any?
-        type = EasyParams::Types::Array.of(EasyParams::Types.const_get(of.to_s.camelcase))
+        type = EasyParams::Types::Array.of(types[of])
         type = customize_type(type, default, &normalize)
         attribute(param_name, type)
       end

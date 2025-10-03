@@ -14,7 +14,11 @@ module EasyParams
   class Error < StandardError; end
 
   def self.register_type(name, type = nil, &coerce_proc)
-    type ||= Generic.new(name, &coerce_proc) if type.nil? && coerce_proc
+    if type.nil? && coerce_proc
+      type = Types::Generic.new(name, &coerce_proc)
+    elsif type.nil? && !coerce_proc
+      raise ArgumentError, 'Either a type instance or a coercion block must be provided'
+    end
     Base.types[name] = type
     Base.define_type_method(name)
   end
