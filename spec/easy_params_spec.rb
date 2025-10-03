@@ -40,9 +40,6 @@ RSpec.describe EasyParams do
   it 'is subclass of ActiveModel::Validations' do
     expect(EasyParams::Base.ancestors).to include(ActiveModel::Validations)
   end
-  # it 'is subclass of Dry::Struct' do
-  #   expect(EasyParams::Base.superclass).to eq(Dry::Struct)
-  # end
 
   describe '.name' do
     it 'returns EasyParams::Base' do

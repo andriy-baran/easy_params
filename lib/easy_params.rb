@@ -12,5 +12,19 @@ require 'easy_params/version'
 
 module EasyParams
   class Error < StandardError; end
-  # Your code goes here...
+
+  def self.register_type(name, type = nil, &coerce_proc)
+    type ||= Generic.new(name, &coerce_proc) if type.nil? && coerce_proc
+    Base.types[name] = type
+    Base.define_type_method(name)
+  end
+
+  register_type :integer, Types::Integer
+  register_type :string, Types::String
+  register_type :decimal, Types::Decimal
+  register_type :float, Types::Float
+  register_type :bool, Types::Bool
+  register_type :date, Types::Date
+  register_type :datetime, Types::DateTime
+  register_type :time, Types::Time
 end

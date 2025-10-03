@@ -19,6 +19,7 @@ module EasyParams
       def inherited(subclass)
         super
         subclass.clone_schema(self)
+        subclass.types = types.dup
       end
 
       def name
@@ -34,6 +35,12 @@ module EasyParams
       def schema
         @schema ||= {}
       end
+
+      def types
+        @types ||= {}
+      end
+
+      attr_writer :types
 
       def each(param_name, definition = nil, default: nil, normalize: nil, **validations, &block)
         validates param_name, **validations if validations.any?
@@ -68,22 +75,20 @@ module EasyParams
         @schema = parent.schema.dup
       end
 
+      def define_type_method(type_name)
+        define_singleton_method(type_name) do |param_name, default: nil, normalize: nil, **validations|
+          validates param_name, **validations if validations.any?
+          type = customize_type(types[type_name], default, &normalize)
+          attribute(param_name, type)
+        end
+      end
+
       private
 
       def customize_type(type, default, &normalize)
         type = type.default(default) if default
         type = type.normalize(&normalize) if normalize
         type
-      end
-    end
-
-    %w[Integer Decimal Float Bool String Date DateTime Time].each do |type_name|
-      send(:define_singleton_method,
-           type_name.underscore) do |param_name, default: nil, normalize: nil, **validations|
-        validates param_name, **validations if validations.any?
-        type = EasyParams::Types.const_get(type_name)
-        type = customize_type(type, default, &normalize)
-        attribute(param_name, type)
       end
     end
 
