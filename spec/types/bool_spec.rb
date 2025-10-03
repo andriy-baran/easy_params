@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe EasyParams::Types::Bool do
-  let(:type) { EasyParams::Types::Bool }
+RSpec.describe 'Bool' do
+  let(:type) { EasyParams::Base.types[:bool] }
 
   describe '#array?' do
     it 'returns false' do

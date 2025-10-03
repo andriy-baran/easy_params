@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe EasyParams::Types::Integer do
-  let(:type) { EasyParams::Types::Integer }
+RSpec.describe 'Integer' do
+  let(:type) { EasyParams::Base.types[:integer] }
 
   describe '#array?' do
     it 'returns false' do

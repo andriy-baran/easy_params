@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe EasyParams::Types::Decimal do
-  let(:type) { EasyParams::Types::Decimal }
+RSpec.describe 'Decimal' do
+  let(:type) { EasyParams::Base.types[:decimal] }
 
   describe '#array?' do
     it 'returns false' do
