@@ -10,6 +10,40 @@ Provides an easy way to define structure, validation rules, type coercion, and d
 
 Available types: `integer`, `decimal`, `float`, `bool`, `string`, `array`, `date`, `datetime`, `time`
 
+### Registering Custom Types
+
+You can register custom types using `EasyParams.register_type`:
+
+```ruby
+# Register a weight type that converts between units
+EasyParams.register_type :weight do |value|
+  case value.to_s.downcase
+  when /^(\d+(?:\.\d+)?)\s*kg$/i
+    $1.to_f
+  when /^(\d+(?:\.\d+)?)\s*lbs?$/i
+    $1.to_f * 0.453592  # Convert pounds to kg
+  when /^(\d+(?:\.\d+)?)\s*g$/i
+    $1.to_f / 1000.0  # Convert grams to kg
+  else
+    value.to_f
+  end
+end
+
+# Now you can use the weight type in your params classes
+class PersonParams < EasyParams::Base
+  weight :mass, presence: true
+  weight :target_weight, default: 70.0
+  array :weights, of: :weight, default: [65.0, 70.0]
+end
+
+# Usage
+person = PersonParams.new(mass: '75.5 kg', target_weight: '165 lbs')
+# person.mass = 75.5
+# person.target_weight ≈ 74.84 (converted from lbs to kg)
+```
+
+Custom types work with all EasyParams features including validation, arrays, nested structures, and inheritance.
+
 ## Installation
 
 Add this line to your application's Gemfile:
