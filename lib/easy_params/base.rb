@@ -2,7 +2,7 @@
 
 module EasyParams
   # Implements validations logic and nesting structures
-  class Base
+  class Base # rubocop:disable Metrics/ClassLength
     include ActiveModel::Model
     include EasyParams::Types::Struct
     include EasyParams::Validation
@@ -45,7 +45,8 @@ module EasyParams
           raise ArgumentError, "definition for attribute #{param_name.inspect} must be a subclass of EasyParams::Base"
         end
 
-        type = EasyParams::Types::Each.with_type(definition, &block)
+        handle_schema_definition(param_name, definition, collection: true, &block)
+        type = EasyParams::Types::Each.of(schemas[param_name].new)
         type = customize_type(type, default, &normalize)
         attribute(param_name, type)
       end
@@ -89,18 +90,24 @@ module EasyParams
         type
       end
 
-      def handle_schema_definition(param_name, definition = nil, &block)
+      def handle_schema_definition(param_name, definition = nil, collection: false, &block)
         schemas[param_name] = definition || Class.new(EasyParams::Base).tap { |c| c.class_eval(&block) }
-        define_schema_method(param_name)
+        define_schema_method(param_name, collection: collection)
       end
 
-      def define_schema_method(param_name)
+      def define_schema_method(param_name, collection: false)
         define_singleton_method("#{param_name}_schema") do |&block|
           default = schema[param_name].read_default
           schemas[param_name] = Class.new(schemas[param_name]).tap { |c| c.class_eval(&block) }
-          type = customize_type(schemas[param_name].new, default)
+          type = create_schema_type(param_name, collection, default)
           attribute(param_name, type)
         end
+      end
+
+      def create_schema_type(param_name, collection, default)
+        type = schemas[param_name].new
+        type = EasyParams::Types::Each.of(type) if collection
+        customize_type(type, default)
       end
     end
 
