@@ -8,6 +8,10 @@ module EasyParams
         false
       end
 
+      def read_default
+        @default
+      end
+
       def default(value)
         self.default = value
         self

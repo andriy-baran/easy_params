@@ -21,6 +21,10 @@ module EasyParams
         subclass.clone_schema(self)
       end
 
+      def schemas
+        @schemas ||= {}
+      end
+
       def name
         'EasyParams::Base'
       end
@@ -52,7 +56,8 @@ module EasyParams
           raise ArgumentError, "definition for attribute #{param_name.inspect} must be a subclass of EasyParams::Base"
         end
 
-        type = (definition || Class.new(EasyParams::Base).tap { |c| c.class_eval(&block) }).new
+        handle_schema_definition(param_name, definition, &block)
+        type = schemas[param_name].new
         type = customize_type(type, default, &normalize)
         attribute(param_name, type)
       end
@@ -82,6 +87,20 @@ module EasyParams
         type = type.default(default) if default
         type = type.normalize(&normalize) if normalize
         type
+      end
+
+      def handle_schema_definition(param_name, definition = nil, &block)
+        schemas[param_name] = definition || Class.new(EasyParams::Base).tap { |c| c.class_eval(&block) }
+        define_schema_method(param_name)
+      end
+
+      def define_schema_method(param_name)
+        define_singleton_method("#{param_name}_schema") do |&block|
+          default = schema[param_name].read_default
+          schemas[param_name] = Class.new(schemas[param_name]).tap { |c| c.class_eval(&block) }
+          type = customize_type(schemas[param_name].new, default)
+          attribute(param_name, type)
+        end
       end
     end
 
