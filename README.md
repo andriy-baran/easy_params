@@ -114,6 +114,67 @@ There are two special types:
   # input: nil => items.map(&:qty) == [2, 1]
   ```
 
+### Schema Extension
+
+You can dynamically extend nested schema definitions using the `#{param_name}_schema` method. This creates a subclass of the original schema that replaces the parent class in the schema, allowing you to add validations, methods, or modify attributes at runtime.
+
+```ruby
+class PostParams < EasyParams::Base
+  has :post, default: {} do
+    integer :id
+    string :title
+    string :content
+    date :published_at, default: Date.today
+  end
+end
+
+# Extend with additional validations and methods
+PostParams.post_schema do
+  validates :title, :content, presence: true, if: :published?
+
+  def published?
+    published_at.present?
+  end
+end
+
+# Now the validation will run conditionally
+params = PostParams.new(id: 1)
+params.valid? # => false (because published_at has default value, so published? returns true)
+```
+
+You can also extend collection schemas:
+
+```ruby
+class CommentParams < EasyParams::Base
+  each :comments, default: [{}, {}] do
+    integer :post_id
+    string :author
+    string :text
+  end
+end
+
+# Extend with additional attributes and validations
+CommentParams.comments_schema do
+  string :author, default: 'Anonymous'
+  date :created_at, default: Date.today
+  validates :post_id, presence: true
+end
+
+# Default values are preserved and merged with input
+params = CommentParams.new({})
+params.comments.size # => 2
+params.comments.first.author # => 'Anonymous'
+params.comments.first.created_at # => Date.today
+```
+
+**Key Features:**
+- **Preserves defaults**: Original default values are maintained when extending schemas
+- **Runtime flexibility**: Add validations and methods by creating subclasses dynamically
+- **Replaces parent**: The new subclass completely replaces the original schema class
+- **Collection support**: Works with both `has` (struct) and `each` (collection) parameters
+
+### Validation errors
+
 ```ruby
 # app/params/api/v2/icqa/move_params.rb
 class Api::V1::Carts::MoveParams < EasyParams::Base
@@ -131,7 +192,9 @@ class Api::V1::Carts::MoveParams < EasyParams::Base
   end
 end
 ```
-Validation messages for nested attributes will look like this.
+
+Validation messages for nested attributes a set on top level and each nested object has `errors` set.
+Errors will look like this.
 ```ruby
 {
   :"sections[0].id"=>an_instance_of(Array),
