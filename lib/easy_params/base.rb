@@ -19,6 +19,7 @@ module EasyParams
       def inherited(subclass)
         super
         subclass.clone_schema(self)
+        subclass.clone_schemas(self)
       end
 
       def schemas
@@ -72,6 +73,10 @@ module EasyParams
 
       def clone_schema(parent)
         @schema = parent.schema.dup
+      end
+
+      def clone_schemas(parent)
+        @schemas = parent.schemas.dup
       end
 
       def define_type_method(type_name)
