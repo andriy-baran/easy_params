@@ -39,20 +39,20 @@ module EasyParams
   register_type :string, &:to_s
   register_type(:decimal) { |v| v.to_f.to_d }
   register_type(:bool) do |v|
-    BOOLEAN_MAP.fetch(v.to_s) { raise CoercionError }
+    v.is_a?(TrueClass) || v.is_a?(FalseClass) ? v : BOOLEAN_MAP.fetch(v.to_s) { raise CoercionError }
   end
   register_type(:date) do |v|
-    ::Date.parse(v)
+    v.is_a?(Date) ? v : Date.parse(v)
   rescue ArgumentError, RangeError
     raise CoercionError, 'cannot be coerced'
   end
   register_type(:datetime) do |v|
-    ::DateTime.parse(v)
+    v.is_a?(DateTime) ? v : DateTime.parse(v)
   rescue ArgumentError
     raise CoercionError, 'cannot be coerced'
   end
   register_type(:time) do |v|
-    ::Time.parse(v)
+    v.is_a?(Time) ? v : Time.parse(v)
   rescue ArgumentError
     raise CoercionError, 'cannot be coerced'
   end
