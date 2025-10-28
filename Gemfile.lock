@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    easy_params (0.7.0)
+    easy_params (0.8.0)
       activemodel (>= 3.2)
 
 GEM
