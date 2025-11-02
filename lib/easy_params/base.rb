@@ -6,12 +6,18 @@ module EasyParams
     include ActiveModel::Model
     include EasyParams::Types::Struct
     include EasyParams::Validation
+    include EasyParams::Composition
 
     attr_writer :default
 
     def initialize(params = {})
       self.class.schema.each do |attr, type|
-        public_send("#{attr}=", type.coerce(params.to_h[attr]))
+        coerced_type = type.coerce(params.to_h[attr])
+        if coerced_type && (type.is_a?(EasyParams::Base) || type.is_a?(EasyParams::Types::StructsCollection))
+          coerced_type.owner = self
+        end
+        coerced_type.each { |v| v.owner = coerced_type } if coerced_type.is_a?(EasyParams::Types::StructsCollection)
+        public_send("#{attr}=", coerced_type)
       end
     end
 

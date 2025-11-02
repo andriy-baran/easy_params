@@ -2,6 +2,7 @@
 
 require 'active_model'
 require 'bigdecimal/util'
+require 'easy_params/composition'
 require 'easy_params/types/generic'
 require 'easy_params/types/collection'
 require 'easy_params/types/struct'
