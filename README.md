@@ -173,6 +173,77 @@ params.comments.first.created_at # => Date.today
 - **Replaces parent**: The new subclass completely replaces the original schema class
 - **Collection support**: Works with both `has` (struct) and `each` (collection) parameters
 
+### Composition and Owner Context
+
+EasyParams supports composition through an owner relationship, allowing nested objects to access methods from their parent objects or an external owner object. This is particularly useful for conditional validations and accessing context from nested structures.
+
+Every `EasyParams::Base` instance has an `owner` attribute that is automatically set for nested objects:
+- Objects created with `has` get their parent as the owner
+- Objects in collections created with `each` get the collection as their owner, and the collection gets the parent as its owner
+
+You can access methods on the owner chain using the `owner_` prefix:
+
+```ruby
+class Owner
+  def check_name?
+    true
+  end
+
+  def check_address_city?
+    true
+  end
+
+  def check_phone_number?
+    true
+  end
+end
+
+class UserParams < EasyParams::Base
+  integer :id
+  string :name, presence: { if: :owner_check_name? }
+
+  has :address do
+    string :street
+    string :city, presence: { if: :owner_check_address_city? }
+    string :state
+    string :zip
+  end
+
+  each :phones do
+    string :number, presence: { if: :owner_check_phone_number? }
+    string :type
+  end
+end
+
+# Use with an external owner object
+owner = Owner.new
+params = UserParams.new(
+  id: 1,
+  address: { street: '123 Main St', city: nil },
+  phones: [{ number: nil, type: 'home' }]
+)
+params.owner = owner
+
+# Validations will use the owner's methods
+params.valid? # => false
+params.errors[:name] # => ["can't be blank"]
+params.address.errors[:city] # => ["can't be blank"]
+params.phones[0].errors[:number] # => ["can't be blank"]
+
+# Owner relationships are automatically established
+params.owner # => owner
+params.address.owner # => params (parent)
+params.phones.owner # => params (parent)
+params.phones[0].owner # => params.phones (collection)
+```
+
+**Key Features:**
+- **Automatic owner setup**: Nested objects automatically get their parent as owner
+- **Owner chain**: The `owner_` prefix searches up the owner chain to find methods
+- **External owners**: Set an external object as owner to provide additional context
+- **Conditional validations**: Use owner methods in validation conditions (`if:`, `unless:`)
+- **Nested access**: Works at any nesting level - nested objects can access parent methods
+
 ### Validation errors
 
 ```ruby
