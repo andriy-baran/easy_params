@@ -41,6 +41,8 @@ module EasyParams
 
     # base interface for array of structs type
     class StructsCollection < Collection
+      include EasyParams::Composition
+
       def read_default
         @default
       end
