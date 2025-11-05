@@ -21,7 +21,7 @@ module EasyParams
         return super unless name.to_s.start_with?('owner_')
 
         owner_method = name.to_s.sub('owner_', '').to_sym
-        return super unless (handler = owners_chain.lazy.detect { |o| o.public_methods.include?(owner_method) })
+        return super unless (handler = owners_chain.lazy.detect { |o| o.respond_to?(owner_method) })
 
         handler.public_send(owner_method, *attrs, **kwargs, &block)
       end
@@ -37,7 +37,7 @@ module EasyParams
       def owners_chain
         @owners_chain ||= Enumerator.new do |y|
           obj = self
-          y << obj = obj.owner while obj.public_methods.include?(:owner)
+          y << obj = obj.owner while obj.respond_to?(:owner)
         end
       end
     end
