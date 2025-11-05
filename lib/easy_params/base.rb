@@ -52,7 +52,7 @@ module EasyParams
           raise ArgumentError, "definition for attribute #{param_name.inspect} must be a subclass of EasyParams::Base"
         end
 
-        handle_schema_definition(param_name, definition, collection: true, &block)
+        handle_schema_definition(param_name, definition, &block)
         type = EasyParams::Types::Each.of(schemas[param_name].new)
         type = customize_type(type, default, &normalize)
         attribute(param_name, type)
@@ -101,24 +101,23 @@ module EasyParams
         type
       end
 
-      def handle_schema_definition(param_name, definition = nil, collection: false, &block)
+      def handle_schema_definition(param_name, definition = nil, &block)
         schemas[param_name] = definition || Class.new(EasyParams::Base).tap { |c| c.class_eval(&block) }
-        define_schema_method(param_name, collection: collection)
+        define_schema_method(param_name)
       end
 
-      def define_schema_method(param_name, collection: false)
+      def define_schema_method(param_name)
         define_singleton_method("#{param_name}_schema") do |&block|
-          default = schema[param_name].read_default
           schemas[param_name] = Class.new(schemas[param_name]).tap { |c| c.class_eval(&block) }
-          type = create_schema_type(param_name, collection, default)
+          type = create_schema_type(param_name, schema[param_name])
           attribute(param_name, type)
         end
       end
 
-      def create_schema_type(param_name, collection, default)
+      def create_schema_type(param_name, custom_type)
         type = schemas[param_name].new
-        type = EasyParams::Types::Each.of(type) if collection
-        customize_type(type, default)
+        type = EasyParams::Types::Each.of(type) if custom_type.is_a?(Types::StructsCollection)
+        customize_type(type, custom_type.read_default, &custom_type.normalize_proc)
       end
     end
 

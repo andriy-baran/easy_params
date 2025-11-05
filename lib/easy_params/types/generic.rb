@@ -4,15 +4,17 @@ module EasyParams
   module Types
     # base interface for simple types
     class Generic
-      def array?
-        @title == :array
-      end
+      attr_reader :normalize_proc
 
       def initialize(title, default = nil, normalize_proc = nil, &coerce_proc)
         @title = title
         @default = default
         @coerce_proc = coerce_proc
         @normalize_proc = normalize_proc
+      end
+
+      def array?
+        @title == :array
       end
 
       def default(value)

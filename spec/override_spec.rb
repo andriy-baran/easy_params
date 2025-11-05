@@ -3,13 +3,13 @@ RSpec.describe EasyParams do
     let(:params_class) do
       Class.new(EasyParams::Base) do
         integer :id, presence: true
-        has :post, default: {} do
+        has :post, default: {}, normalize: ->(v) { v.keep_if { |k, v| v.present? } } do
           integer :id
           string :title
           string :content
           date :published_at, default: Date.today
         end
-        each :comments, default: [{}, {}] do
+        each :comments, default: [{}, {}], normalize: ->(v) { v.map { |h| h.transform_values { |v| "#{v}2" } } } do
           integer :post_id
           string :author
           string :text
@@ -44,6 +44,24 @@ RSpec.describe EasyParams do
       expect(params.comments[-1].created_at).to eq(Date.today)
     end
 
+    it 'preserves normalize proc when extending schema' do
+      params_class.comments_schema do
+        string :author
+        date :created_at, default: Date.today
+      end
+
+      params_with_numbers = params_class.new(
+        id: 1,
+        post: { title: 'Test', content: '' },
+        comments: [{ post_id: 1, author: 'John', text: 'Hello' }]
+      )
+      expect(params_with_numbers.post.title).to eq('Test')
+      expect(params_with_numbers.post.content).to eq(nil)
+      expect(params_with_numbers.comments.first.author).to eq('John2')
+      expect(params_with_numbers.comments.first.text).to eq('Hello2')
+      expect(params_with_numbers.comments.first.post_id).to eq(12)
+    end
+
     it 'works with inheritance' do
       parent_class = Class.new(EasyParams::Base) do
         has :user, default: {} do
@@ -53,26 +71,22 @@ RSpec.describe EasyParams do
       end
 
       child_class = Class.new(parent_class) do
-        # Child class can extend parent's schema
         user_schema do
           string :email, presence: true
           validates :name, presence: true
         end
       end
 
-      # Test that child class has extended schema
       child_instance = child_class.new(user: { name: 'John', email: 'john@example.com' })
       expect(child_instance.user.name).to eq('John')
       expect(child_instance.user.email).to eq('john@example.com')
       expect(child_instance.user.role).to eq('guest') # Default preserved
       expect(child_instance).to be_valid
 
-      # Test validation works
       invalid_child = child_class.new(user: { name: '', email: 'john@example.com' })
       expect(invalid_child).to be_invalid
       expect(invalid_child.errors[:"user.name"]).to include("can't be blank")
 
-      # Test that parent class is unaffected
       parent_instance = parent_class.new(user: { name: 'Jane' })
       expect(parent_instance.user.name).to eq('Jane')
       expect(parent_instance.user.role).to eq('guest')
